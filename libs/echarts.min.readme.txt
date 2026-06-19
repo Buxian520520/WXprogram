@@ -1,0 +1,11 @@
+请将 ECharts 微信小程序定制版放在此目录下，命名为 echarts.min.js
+
+下载方式一：从 echarts-for-weixin 仓库获取
+https://github.com/ecomfe/echarts-for-weixin
+
+下载方式二：使用 ECharts 在线定制
+https://echarts.apache.org/zh/builder.html
+选择模块：pie, bar, line, tooltip, legend, title, grid
+下载后将文件重命名为 echarts.min.js 放在此处
+
+如果暂时无法获取 echarts 库，图表页面会自动使用简易 Canvas 渲染降级方案。

@@ -1,0 +1,288 @@
+/**
+ * 学生列表页样式
+ */
+
+.page-container {
+  padding-top: 88rpx;
+  padding-bottom: 200rpx;
+}
+
+/* ===== 搜索栏 ===== */
+.search-bar {
+  padding: 20rpx 24rpx;
+  background: #fff;
+}
+
+.search-input {
+  width: 100%;
+  height: 72rpx;
+  padding: 0 24rpx;
+  background: #f5f5f5;
+  border-radius: 36rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+/* ===== 操作按钮栏 ===== */
+.action-bar .btn,
+.excel-bar .btn {
+  height: 34px;
+  line-height: 34px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.action-bar {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24rpx 16rpx;
+  background: #fff;
+}
+
+.action-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.action-row {
+  display: flex;
+  gap: 12rpx;
+}
+
+.action-half {
+  flex: 1;
+}
+
+.action-full-wrap {
+  display: flex;
+  width: 100%;
+}
+
+.action-full {
+  flex: 1;
+}
+
+
+/* ===== Excel 操作栏 ===== */
+.excel-bar {
+  display: flex;
+  gap: 12rpx;
+  padding: 0 24rpx 16rpx;
+  background: #fff;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+/* ===== 统计栏 ===== */
+.stats-bar {
+  padding: 12rpx 24rpx;
+  font-size: 24rpx;
+}
+
+/* ===== 批量操作栏 ===== */
+.batch-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 24rpx;
+  background: #fff0f0;
+  margin: 0 24rpx 12rpx;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  color: #F53F3F;
+}
+
+.batch-actions {
+  display: flex;
+  align-items: center;
+}
+
+/* ===== 学生卡片 ===== */
+.student-list {
+  width: 94%;
+  padding: 0 24rpx;
+}
+
+.student-card {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 12rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  margin-bottom: 12rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.04);
+  transition: all 0.2s;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.student-card:active {
+  background: #fafafa;
+}
+
+.student-card-selected {
+  background: #e6f4ff;
+  box-shadow: 0 2rpx 12rpx rgba(22,119,255,0.12);
+}
+
+/* ===== 复选框 ===== */
+.card-checkbox {
+  margin-right: 8rpx;
+}
+
+.checkbox {
+  width: 34rpx;
+  height: 34rpx;
+  border: 2rpx solid #d9d9d9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20rpx;
+}
+
+.checkbox-checked {
+  background: #1677FF;
+  border-color: #1677FF;
+  color: #fff;
+}
+
+/* ===== 头像 ===== */
+.card-avatar {
+  margin-right: 14rpx;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.avatar-img {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  border: 2rpx solid #f0f0f0;
+  box-sizing: border-box;
+}
+
+.avatar-placeholder {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1677FF, #69b1ff);
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* ===== 信息区 ===== */
+.card-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4rpx;
+  overflow: hidden;
+}
+
+.info-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-right: 8rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.info-row text {
+  font-size: 22rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== 操作按钮 ===== */
+.card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  flex-shrink: 0;
+  margin-left: 6rpx;
+  box-sizing: border-box;
+}
+
+.action-btn {
+  padding: 6rpx 30rpx;
+  border-radius: 6rpx;
+  font-size: 20rpx;
+  text-align: center;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.action-view {
+  background: #e6f4ff;
+  color: #1677FF;
+}
+
+.action-edit {
+  background: #e8ffea;
+  color: #00B42A;
+}
+
+.action-delete {
+  background: #fff0f0;
+  color: #F53F3F;
+}
+
+/* ===== 分页 ===== */
+.pagination {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 8rpx;
+  background: #fff;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.picker-inline {
+  flex-shrink: 0;
+  padding: 4rpx 8rpx;
+  background: #f5f5f5;
+  border-radius: 6rpx;
+  font-size: 18rpx;
+  color: #666;
+}
+
+.page-nav {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4rpx;
+}
+
+.page-nav .btn {
+  width: 170px;
+  height: 27px;
+  padding: 0;
+  font-size: 22rpx;
+  line-height: 27px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.page-text {
+  flex-shrink: 0;
+  font-size: 16rpx;
+  color: #999;
+  white-space: nowrap;
+}
+

@@ -1,0 +1,27 @@
+<!-- ec-canvas 组件模板 -->
+<view class="ec-canvas-container" style="width:{{width}};height:{{height}};">
+  <canvas
+    wx:if="{{!useNewCanvas}}"
+    type="2d"
+    class="ec-canvas"
+    id="canvas-{{canvasId}}"
+    canvas-id="{{canvasId}}"
+    style="width:{{width}};height:{{height}};"
+    bindtouchstart="{{bindtouchstart}}"
+    bindtouchmove="{{bindtouchmove}}"
+    bindtouchend="{{bindtouchend}}"
+    bindinit="canvasInit"
+  ></canvas>
+  <canvas
+    wx:else
+    type="2d"
+    class="ec-canvas"
+    id="canvas-{{canvasId}}"
+    canvas-id="{{canvasId}}"
+    style="width:{{width}};height:{{height}};"
+    bindtouchstart="{{bindtouchstart}}"
+    bindtouchmove="{{bindtouchmove}}"
+    bindtouchend="{{bindtouchend}}"
+    bindready="onCanvasReady"
+  ></canvas>
+</view>

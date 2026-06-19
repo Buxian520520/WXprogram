@@ -1,0 +1,131 @@
+<wxs module="utils" src="./student-list.wxs"></wxs>
+<view class="page-container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <input
+      class="search-input"
+      placeholder="输入学号/姓名/性别/电话/邮箱查询"
+      value="{{inputStr}}"
+      bindinput="onSearchInput"
+      confirm-type="search"
+      bindconfirm="queryStudents"
+    />
+  </view>
+
+  <!-- 操作按钮栏 -->
+  <view class="action-bar">
+    <view class="action-group">
+      <view class="action-row">
+        <button class="btn btn-primary btn-sm action-half" bindtap="queryStudents">查询</button>
+        <button class="btn btn-outline btn-sm action-half" bindtap="getAllStudents">全部</button>
+      </view>
+      <view wx:if="{{userRole === 'teacher'}}" class="action-full-wrap mt-sm">
+        <button class="btn btn-success btn-sm action-full" bindtap="addStudent">添加</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- Excel 操作（教师专用） -->
+  <view wx:if="{{userRole === 'teacher'}}" class="excel-bar">
+    <button class="btn btn-outline btn-sm action-half" bindtap="importExcel">导入Excel</button>
+    <button class="btn btn-outline btn-sm action-half" bindtap="exportExcel">导出Excel</button>
+  </view>
+
+  <!-- 统计信息 -->
+  <view class="stats-bar text-muted">
+    共 {{total}} 条记录，当前第 {{currentpage}} 页
+    <text wx:if="{{selectStudents.length > 0}}">，已选 {{selectStudents.length}} 条</text>
+  </view>
+
+  <!-- 批量操作栏 -->
+  <view wx:if="{{userRole === 'teacher' && selectStudents.length > 0}}" class="batch-bar">
+    <text>已选择 {{selectStudents.length}} 项</text>
+    <view class="batch-actions">
+      <button class="btn btn-outline btn-sm" bindtap="selectAll">全选</button>
+      <button class="btn btn-danger btn-sm ml-sm" bindtap="batchDeleteStudents">批量删除</button>
+    </view>
+  </view>
+
+  <!-- 学生列表 -->
+  <scroll-view wx:if="{{pageStudents.length > 0}}" class="student-list" scroll-y>
+    <view
+      wx:for="{{pageStudents}}"
+      wx:key="sno"
+      class="student-card {{utils.isSelected(selectStudents, item.sno) ? 'student-card-selected' : ''}}"
+    >
+      <!-- 选择框（教师专用） -->
+      <view wx:if="{{userRole === 'teacher'}}" class="card-checkbox" catchtap="toggleSelect" data-sno="{{item.sno}}">
+        <view class="checkbox {{utils.isSelected(selectStudents, item.sno) ? 'checkbox-checked' : ''}}">
+          <text wx:if="{{utils.isSelected(selectStudents, item.sno)}}">✓</text>
+        </view>
+      </view>
+
+      <!-- 头像 -->
+      <view class="card-avatar" catchtap="viewStudent" data-row="{{item}}">
+        <image
+          wx:if="{{item.image}}"
+          src="{{baseURL}}media/{{item.image}}"
+          mode="aspectFill"
+          class="avatar-img"
+        />
+        <view wx:else class="avatar-placeholder">
+          {{item.name ? item.name[0] : '?'}}
+        </view>
+      </view>
+
+      <!-- 信息区 -->
+      <view class="card-info" catchtap="viewStudent" data-row="{{item}}">
+        <view class="info-row">
+          <text class="info-name">{{item.name}}</text>
+          <text class="tag {{item.gender === '男' ? 'tag-primary' : 'tag-danger'}}">{{item.gender}}</text>
+        </view>
+        <view class="info-row text-muted">
+          <text>学号: {{item.sno}}</text>
+        </view>
+        <view class="info-row text-muted" wx:if="{{item.birthday}}">
+          <text>生日: {{item.birthday}}</text>
+        </view>
+        <view class="info-row text-muted" wx:if="{{item.mobile}}">
+          <text>电话: {{item.mobile}}</text>
+        </view>
+      </view>
+
+      <!-- 操作按钮（教师专用） -->
+      <view wx:if="{{userRole === 'teacher'}}" class="card-actions">
+        <view class="action-btn action-view" catchtap="viewStudent" data-row="{{item}}">
+          <text>查看</text>
+        </view>
+        <view class="action-btn action-edit" catchtap="editStudent" data-row="{{item}}">
+          <text>编辑</text>
+        </view>
+        <view class="action-btn action-delete" catchtap="deleteStudent" data-row="{{item}}">
+          <text>删除</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{pageStudents.length === 0 && !loading}}" class="empty-text">
+    <view style="font-size: 60rpx; margin-bottom: 16rpx;"></view>
+    <text>暂无学生数据</text>
+  </view>
+
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading-text">加载中...</view>
+
+  <!-- 分页 -->
+  <view wx:if="{{total > 0}}" class="pagination">
+    <picker mode="selector" range="{{pageSizes}}" value="{{pageSizeIndex}}" bindchange="onPageSizeChange">
+      <view class="picker-inline">{{pagesize}}条/页 ▾</view>
+    </picker>
+    <view class="page-nav">
+      <button class="btn btn-sm btn-outline" bindtap="prevPage" disabled="{{currentpage <= 1}}">上一页</button>
+      <text class="page-text">{{currentpage}} / {{totalPages}}</text>
+      <button class="btn btn-sm btn-outline" bindtap="nextPage" disabled="{{currentpage >= totalPages}}">下一页</button>
+    </view>
+  </view>
+</view>
+
+<!-- AI 助手窗口 -->
+<floating-panel title="AI 助手"></floating-panel>

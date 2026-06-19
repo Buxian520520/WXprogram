@@ -1,0 +1,230 @@
+<!--
+  登录/注册页面
+  支持学生和教师两种角色登录和注册
+-->
+<view class="login-container">
+  <!-- Logo / 标题 -->
+  <view class="login-header">
+    <view class="login-logo"></view>
+    <view class="login-title">学生管理系统</view>
+    <view class="login-subtitle">Student Management System</view>
+  </view>
+
+  <!-- 模式切换 -->
+  <view class="mode-tabs">
+    <view
+      class="mode-tab {{mode === 'login' ? 'mode-tab-active' : ''}}"
+      bindtap="switchMode"
+      data-mode="login"
+    >登 录</view>
+    <view
+      class="mode-tab {{mode === 'register' ? 'mode-tab-active' : ''}}"
+      bindtap="switchMode"
+      data-mode="register"
+    >注 册</view>
+  </view>
+
+  <!-- 登录表单 -->
+  <view wx:if="{{mode === 'login'}}" class="form-card">
+    <!-- 角色选择 -->
+    <view class="role-selector">
+      <view
+        class="role-btn {{loginRole === 'student' ? 'role-btn-active' : ''}}"
+        bindtap="selectLoginRole"
+        data-role="student"
+      > 学生入口</view>
+      <view
+        class="role-btn {{loginRole === 'teacher' ? 'role-btn-active' : ''}}"
+        bindtap="selectLoginRole"
+        data-role="teacher"
+      > 教师入口</view>
+    </view>
+
+    <view class="form-group">
+      <view class="form-label">账号 <text class="required">*</text></view>
+      <input
+        class="form-input"
+        placeholder="{{loginRole === 'student' ? '请输入学号' : '请输入工号'}}"
+        value="{{loginForm.username}}"
+        bindinput="onLoginFieldChange"
+        data-field="username"
+      />
+    </view>
+
+    <view class="form-group">
+      <view class="form-label">密码 <text class="required">*</text></view>
+      <input
+        class="form-input"
+        type="password"
+        placeholder="请输入密码"
+        value="{{loginForm.password}}"
+        bindinput="onLoginFieldChange"
+        data-field="password"
+      />
+    </view>
+
+    <button class="btn btn-primary btn-block mt-lg" bindtap="handleLogin" disabled="{{loading}}">
+      {{loading ? '登录中...' : '登 录'}}
+    </button>
+
+    <view class="switch-hint" bindtap="switchMode" data-mode="register">
+      还没有账号？<text class="text-primary">立即注册</text>
+    </view>
+  </view>
+
+  <!-- 注册表单 -->
+  <view wx:if="{{mode === 'register'}}" class="form-card">
+    <!-- 角色选择 -->
+    <view class="role-selector">
+      <view
+        class="role-btn {{registerRole === 'student' ? 'role-btn-active' : ''}}"
+        bindtap="selectRegisterRole"
+        data-role="student"
+      >学生注册</view>
+      <view
+        class="role-btn {{registerRole === 'teacher' ? 'role-btn-active' : ''}}"
+        bindtap="selectRegisterRole"
+        data-role="teacher"
+      >教师注册</view>
+    </view>
+
+    <!-- 公共字段 -->
+    <view class="form-group">
+      <view class="form-label">
+        {{registerRole === 'student' ? '学号' : '工号'}} <text class="required">*</text>
+      </view>
+      <input
+        class="form-input"
+        placeholder="{{registerRole === 'student' ? '请输入学号（95开头的5位数）' : '请输入工号'}}"
+        value="{{registerForm.username}}"
+        bindinput="onRegFieldChange"
+        data-field="username"
+      />
+      <view wx:if="{{regErrors.username}}" class="form-error">{{regErrors.username}}</view>
+    </view>
+
+    <view class="form-group">
+      <view class="form-label">密码 <text class="required">*</text></view>
+      <input
+        class="form-input"
+        type="password"
+        placeholder="请输入密码"
+        value="{{registerForm.password}}"
+        bindinput="onRegFieldChange"
+        data-field="password"
+      />
+      <view wx:if="{{regErrors.password}}" class="form-error">{{regErrors.password}}</view>
+    </view>
+
+    <!-- ===== 学生注册额外字段 ===== -->
+    <block wx:if="{{registerRole === 'student'}}">
+      <view class="form-group">
+        <view class="form-label">姓名 <text class="required">*</text></view>
+        <input
+          class="form-input"
+          placeholder="请输入姓名（2-5个汉字）"
+          value="{{registerForm.student_name}}"
+          bindinput="onRegFieldChange"
+          data-field="student_name"
+        />
+        <view wx:if="{{regErrors.student_name}}" class="form-error">{{regErrors.student_name}}</view>
+      </view>
+
+      <view class="form-group">
+        <view class="form-label">性别 <text class="required">*</text></view>
+        <picker
+          mode="selector"
+          range="{{genderOptions}}"
+          value="{{genderIndex}}"
+          bindchange="onGenderChange"
+        >
+          <view class="picker">
+            <text class="{{registerForm.gender ? '' : 'picker-placeholder'}}">
+              {{registerForm.gender || '请选择性别'}}
+            </text>
+          </view>
+        </picker>
+        <view wx:if="{{regErrors.gender}}" class="form-error">{{regErrors.gender}}</view>
+      </view>
+
+      <view class="form-group">
+        <view class="form-label">生日 <text class="required">*</text></view>
+        <picker
+          mode="date"
+          value="{{registerForm.birthday}}"
+          end="{{today}}"
+          bindchange="onBirthdayChange"
+        >
+          <view class="picker">
+            <text class="{{registerForm.birthday ? '' : 'picker-placeholder'}}">
+              {{registerForm.birthday || '请选择生日'}}
+            </text>
+          </view>
+        </picker>
+        <view wx:if="{{regErrors.birthday}}" class="form-error">{{regErrors.birthday}}</view>
+      </view>
+
+      <view class="form-group">
+        <view class="form-label">手机号码</view>
+        <input
+          class="form-input"
+          type="number"
+          placeholder="请输入手机号码（可选）"
+          value="{{registerForm.mobile}}"
+          bindinput="onRegFieldChange"
+          data-field="mobile"
+          maxlength="11"
+        />
+      </view>
+
+      <view class="form-group">
+        <view class="form-label">邮箱地址</view>
+        <input
+          class="form-input"
+          placeholder="请输入邮箱地址（可选）"
+          value="{{registerForm.email}}"
+          bindinput="onRegFieldChange"
+          data-field="email"
+        />
+      </view>
+
+      <view class="form-group">
+        <view class="form-label">家庭住址</view>
+        <input
+          class="form-input"
+          placeholder="请输入家庭住址（可选）"
+          value="{{registerForm.address}}"
+          bindinput="onRegFieldChange"
+          data-field="address"
+        />
+      </view>
+    </block>
+
+    <!-- ===== 教师注册额外字段 ===== -->
+    <block wx:if="{{registerRole === 'teacher'}}">
+      <view class="form-group">
+        <view class="form-label">姓名</view>
+        <input
+          class="form-input"
+          placeholder="请输入姓名"
+          value="{{registerForm.teacher_name}}"
+          bindinput="onRegFieldChange"
+          data-field="teacher_name"
+        />
+      </view>
+    </block>
+
+    <button class="btn btn-primary btn-block mt-lg" bindtap="handleRegister" disabled="{{loading}}">
+      {{loading ? '注册中...' : '注 册'}}
+    </button>
+
+    <view class="switch-hint" bindtap="switchMode" data-mode="login">
+      已有账号？<text class="text-primary">立即登录</text>
+    </view>
+  </view>
+
+  <!-- 消息提示 -->
+  <view hidden="{{!message}}" class="message-bar {{messageType}}">
+    {{message}}
+  </view>
+</view>

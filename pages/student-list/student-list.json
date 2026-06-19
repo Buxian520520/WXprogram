@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "floating-panel": "/components/floating-panel/floating-panel"
+  },
+  "navigationBarTitleText": "学生信息",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
+}

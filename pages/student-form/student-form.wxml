@@ -1,0 +1,150 @@
+<!--
+  学生表单页 — 添加/编辑/查看
+  通过 query 参数 mode (add|edit|view) 和 sno 区分模式
+-->
+<view class="page-container">
+  <!-- 头像上传区 -->
+  <view class="avatar-section">
+    <view class="avatar-wrapper" bindtap="{{isView ? '' : 'chooseAvatar'}}">
+      <image
+        wx:if="{{form.imageUrl}}"
+        src="{{form.imageUrl}}"
+        mode="aspectFill"
+        class="avatar-img"
+      />
+      <view wx:else class="avatar-placeholder">
+        <text class="avatar-icon"></text>
+        <text wx:if="{{!isView}}" class="avatar-hint">点击上传头像</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 表单 -->
+  <view class="form-section">
+    <!-- 学号 -->
+    <view class="form-group">
+      <view class="form-label">学号 <text class="required">*</text></view>
+      <input
+        class="form-input {{isEdit || isView ? 'input-disabled' : ''}}"
+        type="number"
+        placeholder="95开头的五位数"
+        value="{{form.sno}}"
+        disabled="{{isEdit || isView}}"
+        bindinput="onFieldChange"
+        bindblur="checkSnoExists"
+        data-field="sno"
+        maxlength="5"
+      />
+      <view wx:if="{{errors.sno}}" class="form-error">{{errors.sno}}</view>
+    </view>
+
+    <!-- 姓名 -->
+    <view class="form-group">
+      <view class="form-label">姓名 <text class="required">*</text></view>
+      <input
+        class="form-input {{isView ? 'input-disabled' : ''}}"
+        placeholder="2-5个汉字"
+        value="{{form.name}}"
+        disabled="{{isView}}"
+        bindinput="onFieldChange"
+        data-field="name"
+      />
+      <view wx:if="{{errors.name}}" class="form-error">{{errors.name}}</view>
+    </view>
+
+    <!-- 性别 -->
+    <view class="form-group">
+      <view class="form-label">性别 <text class="required">*</text></view>
+      <picker
+        wx:if="{{!isView}}"
+        mode="selector"
+        range="{{genderOptions}}"
+        value="{{genderIndex}}"
+        bindchange="onGenderChange"
+      >
+        <view class="picker">
+          <text class="{{form.gender ? '' : 'picker-placeholder'}}">
+            {{form.gender || '请选择性别'}}
+          </text>
+        </view>
+      </picker>
+      <view wx:else class="form-input input-disabled">{{form.gender || '-'}}</view>
+      <view wx:if="{{errors.gender}}" class="form-error">{{errors.gender}}</view>
+    </view>
+
+    <!-- 出生日期 -->
+    <view class="form-group">
+      <view class="form-label">出生日期 <text class="required">*</text></view>
+      <picker
+        wx:if="{{!isView}}"
+        mode="date"
+        value="{{form.birthday}}"
+        end="{{today}}"
+        bindchange="onBirthdayChange"
+      >
+        <view class="picker">
+          <text class="{{form.birthday ? '' : 'picker-placeholder'}}">
+            {{form.birthday || '请选择出生日期'}}
+          </text>
+        </view>
+      </picker>
+      <view wx:else class="form-input input-disabled">{{form.birthday || '-'}}</view>
+      <view wx:if="{{errors.birthday}}" class="form-error">{{errors.birthday}}</view>
+    </view>
+
+    <!-- 手机号码 -->
+    <view class="form-group">
+      <view class="form-label">手机号码 <text class="required">*</text></view>
+      <input
+        class="form-input {{isView ? 'input-disabled' : ''}}"
+        type="number"
+        placeholder="请输入手机号码"
+        value="{{form.mobile}}"
+        disabled="{{isView}}"
+        bindinput="onFieldChange"
+        data-field="mobile"
+        maxlength="11"
+      />
+      <view wx:if="{{errors.mobile}}" class="form-error">{{errors.mobile}}</view>
+    </view>
+
+    <!-- 邮箱 -->
+    <view class="form-group">
+      <view class="form-label">邮箱地址 <text class="required">*</text></view>
+      <input
+        class="form-input {{isView ? 'input-disabled' : ''}}"
+        placeholder="请输入邮箱地址"
+        value="{{form.email}}"
+        disabled="{{isView}}"
+        bindinput="onFieldChange"
+        data-field="email"
+      />
+      <view wx:if="{{errors.email}}" class="form-error">{{errors.email}}</view>
+    </view>
+
+    <!-- 家庭住址 -->
+    <view class="form-group">
+      <view class="form-label">家庭住址 <text class="required">*</text></view>
+      <input
+        class="form-input {{isView ? 'input-disabled' : ''}}"
+        placeholder="请输入家庭住址"
+        value="{{form.address}}"
+        disabled="{{isView}}"
+        bindinput="onFieldChange"
+        data-field="address"
+      />
+      <view wx:if="{{errors.address}}" class="form-error">{{errors.address}}</view>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view wx:if="{{!isView}}" class="submit-section">
+    <button class="btn btn-primary btn-block" bindtap="submitForm" loading="{{submitting}}">
+      {{isEdit ? '保存修改' : '添加学生'}}
+    </button>
+    <button class="btn btn-outline btn-block " bindtap="cancelForm">取 消</button>
+  </view>
+  <view wx:else class="submit-section">
+    <button class="btn btn-outline btn-block" bindtap="cancelForm">返 回</button>
+  </view>
+</view>

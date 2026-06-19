@@ -1,0 +1,71 @@
+<view class="page-container">
+  <!-- 用户信息头部 -->
+  <view class="profile-header">
+    <view class="avatar-circle">
+      <image src="{{avatarUrl}}" mode="aspectFill" class="avatar-img" />
+    </view>
+    <view class="header-info">
+      <view class="header-name">{{displayName || '未登录'}}</view>
+      <view class="header-role">
+        <text class="tag {{userRole === 'teacher' ? 'tag-primary' : 'tag-success'}}">
+          {{userRole === 'teacher' ? '教师' : '学生'}}
+        </text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-section">
+    <!-- 教师菜单 -->
+    <block wx:if="{{userRole === 'teacher'}}">
+      <view class="menu-item" bindtap="navigateTo" data-url="/pages/leave-manage/leave-manage">
+        <view class="menu-icon"></view>
+        <view class="menu-text">请假管理</view>
+        <view class="menu-arrow">›</view>
+      </view>
+      <view class="menu-item" bindtap="navigateTo" data-url="/pages/teacher-info/teacher-info">
+        <view class="menu-icon"></view>
+        <view class="menu-text">讲师信息</view>
+        <view class="menu-arrow">›</view>
+      </view>
+      <view class="menu-item" bindtap="navigateTo" data-url="/pages/class-manage/class-manage">
+        <view class="menu-icon"></view>
+        <view class="menu-text">班级管理</view>
+        <view class="menu-arrow">›</view>
+      </view>
+      <view class="menu-item" bindtap="navigateTo" data-url="/pages/course-manage/course-manage">
+        <view class="menu-icon"></view>
+        <view class="menu-text">课程管理</view>
+        <view class="menu-arrow">›</view>
+      </view>
+    </block>
+
+    <!-- 学生菜单 -->
+    <block wx:if="{{userRole === 'student'}}">
+      <view class="menu-item" bindtap="navigateTo" data-url="/pages/student-form/student-form?mode=view">
+        <view class="menu-icon"></view>
+        <view class="menu-text">个人信息</view>
+        <view class="menu-arrow">›</view>
+      </view>
+      <view class="menu-item" bindtap="navigateTo" data-url="/pages/leave-apply/leave-apply">
+        <view class="menu-icon"></view>
+        <view class="menu-text">我的请假</view>
+        <view class="menu-arrow">›</view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 关于 -->
+  <view class="menu-section">
+    <view class="menu-item">
+      <view class="menu-icon"></view>
+      <view class="menu-text">关于</view>
+      <view class="menu-value">学生管理系统 v1.0</view>
+    </view>
+  </view>
+
+  <!-- 退出登录 -->
+  <view class="logout-section">
+    <button class="btn btn-danger btn-block" bindtap="handleLogout">安全退出</button>
+  </view>
+</view>

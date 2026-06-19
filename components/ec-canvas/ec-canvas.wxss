@@ -1,0 +1,9 @@
+.ec-canvas-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.ec-canvas {
+  width: 100%;
+  height: 100%;
+}

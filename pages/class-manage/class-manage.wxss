@@ -1,0 +1,25 @@
+.placeholder-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: calc(88rpx + 40rpx) 40rpx 40rpx;
+}
+
+.placeholder-icon {
+  font-size: 120rpx;
+  margin-bottom: 32rpx;
+}
+
+.placeholder-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.placeholder-desc {
+  font-size: 28rpx;
+  color: #999;
+}

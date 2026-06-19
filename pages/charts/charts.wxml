@@ -1,0 +1,271 @@
+<!--
+  教师端：数据图表页 (Tab 2)
+  学生端：请假模块 — 申请请假 + 查看记录
+-->
+
+<!-- ==================== 教师：图表 ==================== -->
+<view wx:if="{{userRole === 'teacher'}}" class="charts-container">
+  <view class="charts-title">数据统计分析</view>
+
+  <view wx:if="{{loading}}" class="loading-text">正在加载图表数据...</view>
+
+  <view wx:if="{{!loading}}" class="charts-grid">
+    <!-- 1. 性别分布 - 饼图 -->
+    <view class="chart-card">
+      <view class="chart-title">班级男女生比例</view>
+      <view wx:if="{{useECharts}}" class="chart-body">
+        <ec-canvas
+          id="gender-chart"
+          canvas-id="gender-chart"
+          ec="{{ecGender}}"
+          width="100%"
+          height="400rpx"
+        ></ec-canvas>
+      </view>
+      <view wx:else class="chart-body">
+        <canvas
+          type="2d"
+          id="gender-canvas"
+          class="simple-canvas"
+          style="width:100%;height:550rpx;"
+        ></canvas>
+      </view>
+    </view>
+
+    <!-- 2. 年龄分布 - 饼图 -->
+    <view class="chart-card">
+      <view class="chart-title">学生年龄分布</view>
+      <view wx:if="{{useECharts}}" class="chart-body">
+        <ec-canvas
+          id="age-chart"
+          canvas-id="age-chart"
+          ec="{{ecAge}}"
+          width="100%"
+          height="400rpx"
+        ></ec-canvas>
+      </view>
+      <view wx:else class="chart-body">
+        <canvas
+          type="2d"
+          id="age-canvas"
+          class="simple-canvas"
+          style="width:100%;height:550rpx;"
+        ></canvas>
+      </view>
+    </view>
+
+    <!-- 3. 生日月份分布 - 柱状图 -->
+    <view class="chart-card chart-card-full">
+      <view class="chart-title">班级生日月份分析</view>
+      <view wx:if="{{useECharts}}" class="chart-body">
+        <ec-canvas
+          id="birthday-chart"
+          canvas-id="birthday-chart"
+          ec="{{ecBirthday}}"
+          width="100%"
+          height="440rpx"
+        ></ec-canvas>
+      </view>
+      <view wx:else class="chart-body">
+        <canvas
+          type="2d"
+          id="birthday-canvas"
+          class="simple-canvas"
+          style="width:100%;height:440rpx;"
+        ></canvas>
+      </view>
+    </view>
+
+    <!-- 4. 请假趋势 - 折线图 -->
+    <view class="chart-card chart-card-full">
+      <view class="chart-title">近15天请假人数</view>
+      <view wx:if="{{useECharts}}" class="chart-body">
+        <ec-canvas
+          id="leave-chart"
+          canvas-id="leave-chart"
+          ec="{{ecLeave}}"
+          width="100%"
+          height="440rpx"
+        ></ec-canvas>
+      </view>
+      <view wx:else class="chart-body">
+        <canvas
+          type="2d"
+          id="leave-canvas"
+          class="simple-canvas"
+          style="width:100%;height:440rpx;"
+        ></canvas>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- ==================== 学生：请假模块 ==================== -->
+<view wx:if="{{userRole === 'student'}}" class="leave-page-container">
+  <!-- 申请请假卡片 -->
+  <view class="form-card">
+    <view class="card-header">
+      <text> 申请请假</text>
+      <text class="toggle-btn" bindtap="toggleForm">{{showForm ? '收起 ▲' : '展开 ▼'}}</text>
+    </view>
+
+    <view wx:if="{{showForm}}">
+      <view class="form-group">
+        <view class="form-label">请假类型 <text class="required">*</text></view>
+        <picker
+          mode="selector"
+          range="{{leaveTypes}}"
+          value="{{leaveTypeIndex}}"
+          bindchange="onLeaveTypeChange"
+        >
+          <view class="picker">
+            <text class="{{leaveForm.leaveType ? '' : 'picker-placeholder'}}">
+              {{leaveForm.leaveType || '请选择请假类型'}}
+            </text>
+          </view>
+        </picker>
+        <view wx:if="{{errors.leaveType}}" class="form-error">{{errors.leaveType}}</view>
+      </view>
+
+      <view class="form-group">
+        <view class="form-label">开始日期 <text class="required">*</text></view>
+        <picker
+          mode="date"
+          value="{{leaveForm.startDate}}"
+          bindchange="onStartDateChange"
+        >
+          <view class="picker">
+            <text class="{{leaveForm.startDate ? '' : 'picker-placeholder'}}">
+              {{leaveForm.startDate || '请选择开始日期'}}
+            </text>
+          </view>
+        </picker>
+        <view wx:if="{{errors.startDate}}" class="form-error">{{errors.startDate}}</view>
+      </view>
+
+      <view class="form-group">
+        <view class="form-label">结束日期 <text class="required">*</text></view>
+        <picker
+          mode="date"
+          value="{{leaveForm.endDate}}"
+          start="{{leaveForm.startDate}}"
+          bindchange="onEndDateChange"
+        >
+          <view class="picker">
+            <text class="{{leaveForm.endDate ? '' : 'picker-placeholder'}}">
+              {{leaveForm.endDate || '请选择结束日期'}}
+            </text>
+          </view>
+        </picker>
+        <view wx:if="{{errors.endDate}}" class="form-error">{{errors.endDate}}</view>
+      </view>
+
+      <view class="form-group">
+        <view class="form-label">请假原因 <text class="required">*</text></view>
+        <textarea
+          class="form-textarea"
+          placeholder="请输入请假原因（至少5个字符）"
+          value="{{leaveForm.reason}}"
+          bindinput="onReasonChange"
+          maxlength="500"
+        ></textarea>
+        <view class="char-count text-muted">{{leaveForm.reason.length}}/500</view>
+        <view wx:if="{{errors.reason}}" class="form-error">{{errors.reason}}</view>
+      </view>
+
+      <button class="btn btn-primary btn-block mt-md" bindtap="submitLeave" loading="{{submitting}}">
+        提交申请
+      </button>
+    </view>
+  </view>
+
+  <!-- 我的请假记录 -->
+  <view class="record-card">
+    <view class="card-header">
+      <text> 我的请假记录</text>
+      <picker
+        mode="selector"
+        range="{{statusOptions}}"
+        value="{{statusIndex}}"
+        bindchange="onStatusFilterChange"
+      >
+        <view class="filter-text">{{statusOptions[statusIndex]}} ▾</view>
+      </picker>
+    </view>
+
+    <view wx:if="{{pageLeaves.length > 0}}">
+      <view
+        wx:for="{{pageLeaves}}"
+        wx:key="id"
+        class="leave-item"
+      >
+        <view class="item-header">
+          <text class="tag {{item.leaveType === '病假' ? 'tag-warning' : item.leaveType === '事假' ? 'tag-info' : ''}}">{{item.leaveType}}</text>
+          <text class="tag {{item.status === 'pending' ? 'tag-warning' : item.status === 'approved' ? 'tag-success' : 'tag-danger'}}">
+            {{item.status === 'pending' ? '待审批' : item.status === 'approved' ? '已批准' : '已拒绝'}}
+          </text>
+        </view>
+        <view class="item-body">
+          <text class="text-muted">{{item.startDate}} ~ {{item.endDate}} ({{item.days}}天)</text>
+        </view>
+        <view class="item-body" wx:if="{{item.reason}}">
+          <text class="text-muted">原因: {{item.reason}}</text>
+        </view>
+        <view class="item-footer">
+          <text class="text-muted">{{item.applyTime}}</text>
+          <view class="item-actions">
+            <text class="action-link" bindtap="viewLeaveDetail" data-row="{{item}}">查看</text>
+            <text
+              wx:if="{{item.status === 'pending'}}"
+              class="action-link action-delete"
+              bindtap="deleteLeave"
+              data-row="{{item}}"
+            >删除</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 分页 -->
+      <view class="pagination">
+        <text>共 {{leaveTotal}} 条</text>
+        <view class="page-nav">
+          <button class="btn btn-sm btn-outline" bindtap="prevLeavePage" disabled="{{leaveCurrentpage <= 1}}">上一页</button>
+          <text class="page-text">{{leaveCurrentpage}} / {{leaveTotalPages}}</text>
+          <button class="btn btn-sm btn-outline" bindtap="nextLeavePage" disabled="{{leaveCurrentpage >= leaveTotalPages}}">下一页</button>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{pageLeaves.length === 0 && !leaveLoading}}" class="empty-text">
+      <text>暂无请假记录</text>
+    </view>
+  </view>
+
+  <!-- 详情对话框 -->
+  <view wx:if="{{showDetailDialog}}" class="dialog-mask" bindtap="closeDetailDialog">
+    <view class="dialog-box" catchtap="stopPropagation">
+      <view class="dialog-title">请假详情</view>
+      <view class="dialog-body">
+        <view class="detail-row"><text class="detail-label">类型：</text><text>{{detailLeave.leaveType}}</text></view>
+        <view class="detail-row"><text class="detail-label">状态：</text>
+          <text class="{{detailLeave.status === 'pending' ? 'text-warning' : detailLeave.status === 'approved' ? 'text-success' : 'text-danger'}}">
+            {{detailLeave.status === 'pending' ? '待审批' : detailLeave.status === 'approved' ? '已批准' : '已拒绝'}}
+          </text>
+        </view>
+        <view class="detail-row"><text class="detail-label">日期：</text><text>{{detailLeave.startDate}} ~ {{detailLeave.endDate}}</text></view>
+        <view class="detail-row"><text class="detail-label">天数：</text><text>{{detailLeave.days}} 天</text></view>
+        <view class="detail-row"><text class="detail-label">申请时间：</text><text>{{detailLeave.applyTime}}</text></view>
+        <view class="detail-row"><text class="detail-label">原因：</text><text>{{detailLeave.reason}}</text></view>
+        <view wx:if="{{detailLeave.status !== 'pending'}}" class="detail-row">
+          <text class="detail-label">审批意见：</text><text>{{detailLeave.approvalComment || '无'}}</text>
+        </view>
+        <view wx:if="{{detailLeave.status !== 'pending'}}" class="detail-row">
+          <text class="detail-label">审批时间：</text><text>{{detailLeave.approvalTime || '无'}}</text>
+        </view>
+      </view>
+      <view class="dialog-footer">
+        <button class="btn btn-outline btn-sm" bindtap="closeDetailDialog">关闭</button>
+      </view>
+    </view>
+  </view>
+</view>

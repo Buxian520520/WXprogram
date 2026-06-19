@@ -1,0 +1,227 @@
+<!--
+  签到模块
+  教师：发布签到 / 查看记录 / 查看位置
+  学生：签到 / 签到历史
+-->
+<view class="page-container">
+
+  <!-- ==================== 教师端 ==================== -->
+  <block wx:if="{{userRole === 'teacher'}}">
+
+    <!-- 创建签到 -->
+    <view class="section-card">
+      <view class="section-title">发布签到任务</view>
+
+      <view class="form-group">
+        <view class="form-label">签到标题</view>
+        <input class="form-input" placeholder="如：4月15日上课签到" value="{{taskTitle}}" bindinput="onTitleInput" />
+      </view>
+
+      <view class="form-group">
+        <view class="form-label">签到方式</view>
+        <picker mode="selector" range="{{checkinTypes}}" value="{{checkinTypeIndex}}" bindchange="onTypeChange">
+          <view class="picker">{{checkinTypes[checkinTypeIndex]}} ▾</view>
+        </picker>
+      </view>
+
+      <!-- 位置签到：范围设置 -->
+      <view wx:if="{{checkinType === 'location'}}" class="form-group">
+        <view class="form-label">签到范围：{{rangeValue}} 米</view>
+        <slider min="10" max="2000" step="10" value="{{rangeValue}}" bindchange="onRangeChange" activeColor="#1677FF" block-size="20" />
+        <view class="range-hint">学生需在教师 {{rangeValue}} 米范围内才能签到</view>
+      </view>
+
+      <button class="btn btn-primary btn-block" bindtap="publishCheckin" loading="{{submitting}}">
+        {{checkinType === 'qrcode' ? ' 发布二维码签到' : ' 发布位置签到'}}
+      </button>
+    </view>
+
+    <!-- 进行中的任务 -->
+    <view class="section-card">
+      <view class="section-title">📌 进行中的签到 ({{activeTasks.length}})</view>
+
+      <view wx:if="{{activeTasks.length === 0 && !loading}}" class="empty-text">暂无进行中的签到</view>
+
+      <view wx:for="{{activeTasks}}" wx:key="id" class="task-card">
+        <view class="task-header">
+          <text class="task-title">{{item.title}}</text>
+          <text class="tag {{item.type === 'qrcode' ? 'tag-primary' : 'tag-success'}}">
+            {{item.type === 'qrcode' ? '二维码' : '位置'}}
+          </text>
+        </view>
+        <!-- 二维码签到：显示二维码图片 -->
+        <view wx:if="{{item.type === 'qrcode'}}" class="qrcode-wrap">
+          <image
+            class="qrcode-img"
+            src="{{baseURL}}checkin/qrcode/?code={{item.code}}"
+            mode="widthFix"
+          />
+          <text class="qrcode-code">签到码：{{item.code}}</text>
+        </view>
+        <!-- 位置签到：显示范围 -->
+        <view wx:if="{{item.type === 'location'}}" class="task-info">
+          <text>范围：{{item.range}}m</text>
+        </view>
+        <view class="task-info text-muted">
+          <text>发布：{{item.createTime}}</text>
+          <text>已签到：{{item.signCount || 0}} 人</text>
+        </view>
+        <view class="task-actions">
+          <button class="btn btn-outline btn-sm" bindtap="viewRecords" data-id="{{item.id}}">签到记录</button>
+          <button wx:if="{{item.type === 'location'}}" class="btn btn-outline btn-sm" bindtap="viewLocations" data-id="{{item.id}}">查看位置</button>
+          <button class="btn btn-danger btn-sm" bindtap="endCheckin" data-id="{{item.id}}">结束</button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 签到记录弹窗 -->
+    <view wx:if="{{showRecordsFor}}" class="dialog-mask" bindtap="closeRecords">
+      <view class="dialog-box dialog-wide" catchtap="stopPropagation">
+        <view class="dialog-title">签到记录</view>
+        <view class="dialog-body">
+          <view wx:if="{{taskRecords.length === 0}}" class="empty-text">暂无记录</view>
+          <view wx:for="{{taskRecords}}" wx:key="sno" class="record-row">
+            <text class="record-name">{{item.name}} ({{item.sno}})</text>
+            <text class="record-time">{{item.signTime}}</text>
+          </view>
+        </view>
+        <view class="dialog-footer">
+          <button class="btn btn-outline btn-sm" bindtap="closeRecords">关闭</button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 位置查看弹窗 -->
+    <view wx:if="{{showLocationsFor}}" class="dialog-mask" bindtap="closeLocations">
+      <view class="dialog-box dialog-wide" catchtap="stopPropagation">
+        <view class="dialog-title">学生位置分布</view>
+        <view class="dialog-body">
+          <view wx:if="{{locationList.length === 0}}" class="empty-text">暂无位置数据</view>
+          <view wx:for="{{locationList}}" wx:key="sno" class="location-row">
+            <view class="loc-info">
+              <text class="record-name">{{item.name}} ({{item.sno}})</text>
+              <text class="text-muted">{{item.signTime}}</text>
+            </view>
+            <view class="loc-coords">
+              <text class="text-primary">{{item.lat}}, {{item.lng}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="dialog-footer">
+          <button class="btn btn-outline btn-sm" bindtap="closeLocations">关闭</button>
+        </view>
+      </view>
+    </view>
+
+    <!-- ====== 历史签到 ====== -->
+    <view class="section-card">
+      <view class="section-title">📜 历史签到记录</view>
+      <view wx:if="{{historyTasks.length === 0}}" class="empty-text">暂无历史签到</view>
+      <view wx:for="{{historyTasks}}" wx:key="id" class="task-card history-card">
+        <view class="task-header">
+          <text class="task-title">{{item.title}}</text>
+          <text class="tag {{item.type === 'qrcode' ? 'tag-primary' : 'tag-success'}}">
+            {{item.type === 'qrcode' ? '二维码' : '位置'}}
+          </text>
+        </view>
+        <view class="task-info text-muted">
+          <text>{{item.createTime}}</text>
+          <text>已签到：{{item.signCount}} 人</text>
+        </view>
+        <view class="task-actions">
+          <button class="btn btn-outline btn-sm" bindtap="viewAttendance" data-id="{{item.id}}">查看考勤</button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 考勤详情弹窗 -->
+    <view wx:if="{{showAttendanceFor}}" class="dialog-mask" bindtap="closeAttendance">
+      <view class="dialog-box dialog-wide" catchtap="stopPropagation">
+        <view class="dialog-title">
+          {{attendanceData.task.title}}
+          <view class="attendance-summary">
+            <text class="text-success">已签 {{attendanceData.signedCount}}</text>
+            <text class="text-danger ml-sm">未签 {{attendanceData.unsignedCount}}</text>
+            <text class="text-muted ml-sm">/ 共 {{attendanceData.total}} 人</text>
+          </view>
+        </view>
+        <scroll-view class="dialog-body" scroll-y style="max-height:60vh;">
+          <view wx:for="{{attendanceData.list}}" wx:key="sno" class="attendance-row {{item.status === 'unsigned' ? 'row-unsigned' : ''}}">
+            <view class="att-info">
+              <text class="att-name">{{item.name}}</text>
+              <text class="att-sno text-muted">{{item.sno}}</text>
+            </view>
+            <view class="att-status">
+              <text wx:if="{{item.status === 'signed'}}" class="tag tag-success">✓ {{item.signTime}}</text>
+              <text wx:else class="tag tag-danger">未签到</text>
+            </view>
+            <view class="att-actions">
+              <button wx:if="{{item.status === 'unsigned'}}" class="btn btn-success btn-sm" bindtap="addRecord" data-sno="{{item.sno}}" data-name="{{item.name}}">补签</button>
+              <button wx:if="{{item.status === 'signed'}}" class="btn btn-danger btn-sm" bindtap="removeRecord" data-sno="{{item.sno}}" data-name="{{item.name}}">删除</button>
+            </view>
+          </view>
+        </scroll-view>
+        <view class="dialog-footer">
+          <button class="btn btn-outline btn-sm" bindtap="closeAttendance">关闭</button>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- ==================== 学生端 ==================== -->
+  <block wx:if="{{userRole === 'student'}}">
+
+    <!-- 进行中的签到 -->
+    <view class="section-card">
+      <view class="section-title">📌 可签到任务</view>
+
+      <view wx:if="{{studentTasks.length === 0}}" class="empty-text">暂无进行中的签到</view>
+
+      <view wx:for="{{studentTasks}}" wx:key="id" class="task-card">
+        <view class="task-header">
+          <text class="task-title">{{item.title}}</text>
+          <text class="tag {{item.type === 'qrcode' ? 'tag-primary' : 'tag-success'}}">
+            {{item.type === 'qrcode' ? '二维码签到' : '位置签到'}}
+          </text>
+        </view>
+        <view wx:if="{{item.type === 'location'}}" class="task-info text-muted">
+          <text>需在教师 {{item.range}}m 范围内</text>
+        </view>
+
+        <!-- 二维码签到 -->
+        <block wx:if="{{item.type === 'qrcode'}}">
+          <view class="sign-row">
+            <input class="form-input sign-input" placeholder="输入签到码" value="{{checkinCode}}" bindinput="onCodeInput" />
+            <button class="btn btn-primary btn-sm" bindtap="submitCodeCheckin" data-id="{{item.id}}" loading="{{submitting}}">签到</button>
+          </view>
+          <view class="sign-row" style="margin-top:12rpx;">
+            <button class="btn btn-outline btn-sm btn-block" bindtap="scanQrCode" data-id="{{item.id}}">📷 扫描二维码</button>
+          </view>
+        </block>
+
+        <!-- 位置签到 -->
+        <block wx:if="{{item.type === 'location'}}">
+          <button class="btn btn-success btn-block" bindtap="locationCheckin" data-id="{{item.id}}" loading="{{locating}}">
+            📍 获取位置并签到
+          </button>
+        </block>
+      </view>
+    </view>
+
+    <!-- 签到历史 -->
+    <view class="section-card">
+      <view class="section-title">📜 我的签到记录</view>
+      <view wx:if="{{myRecords.length === 0}}" class="empty-text">暂无记录</view>
+      <view wx:for="{{myRecords}}" wx:key="id" class="history-row">
+        <view class="history-info">
+          <text class="history-title">{{item.taskTitle}}</text>
+          <text class="text-muted">{{item.signTime}}</text>
+        </view>
+        <text class="tag {{item.type === 'qrcode' ? 'tag-primary' : 'tag-success'}}">
+          {{item.type === 'qrcode' ? '二维码' : '位置'}}
+        </text>
+      </view>
+    </view>
+  </block>
+
+</view>

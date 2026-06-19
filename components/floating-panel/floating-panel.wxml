@@ -1,0 +1,75 @@
+<!-- AI 对话窗口 -->
+<view class="fp-root">
+
+  <!-- 遮罩 -->
+  <view wx:if="{{isOpen}}" class="fp-overlay" bindtap="closePanel"></view>
+
+  <!-- 面板 -->
+  <view
+    class="fp-panel {{isOpen ? 'fp-open' : ''}}"
+    bindtransitionend="onPanelTransitionEnd"
+  >
+    <!-- 头部 -->
+    <view class="fp-header">
+      <text class="fp-title"> {{title}}</text>
+      <view class="fp-header-actions">
+        <view class="fp-action-btn" bindtap="clearChat">🗑</view>
+        <view class="fp-close" bindtap="closePanel">✕</view>
+      </view>
+    </view>
+
+    <!-- 消息列表 -->
+    <scroll-view
+      class="fp-chat-body"
+      scroll-y
+      scroll-top="{{scrollTop}}"
+      scroll-with-animation
+    >
+      <view wx:for="{{messages}}" wx:key="id" class="chat-msg-wrapper">
+        <view class="chat-msg {{item.role === 'user' ? 'msg-user' : 'msg-assistant'}}">
+          <view class="msg-bubble {{item.role === 'user' ? 'bubble-user' : 'bubble-assistant'}}">
+            <text class="msg-text">{{item.content}}</text>
+          </view>
+          <view class="msg-time {{item.role === 'user' ? 'time-right' : 'time-left'}}">{{item.time}}</view>
+        </view>
+      </view>
+
+      <!-- 发送中（打字动画） -->
+      <view wx:if="{{sending}}" class="chat-msg-wrapper">
+        <view class="chat-msg msg-assistant">
+          <view class="msg-bubble bubble-assistant typing-bubble">
+            <view class="typing-dot"></view>
+            <view class="typing-dot"></view>
+            <view class="typing-dot"></view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <!-- 输入栏 -->
+    <view class="fp-input-bar">
+      <input
+        class="fp-input"
+        placeholder="输入消息..."
+        value="{{inputValue}}"
+        bindinput="onInputChange"
+        confirm-type="send"
+        bindconfirm="sendMessage"
+        disabled="{{sending}}"
+      />
+      <view
+        class="fp-send-btn {{inputValue ? 'send-active' : ''}} {{sending ? 'send-disabled' : ''}}"
+        bindtap="sendMessage"
+      >
+        <text wx:if="{{!sending}}">发送</text>
+        <text wx:else>···</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 触发按钮 -->
+  <view wx:if="{{showTrigger}}" class="fp-trigger" bindtap="openPanel">
+    <text class="fp-trigger-icon"></text>
+  </view>
+
+</view>

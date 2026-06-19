@@ -1,0 +1,18 @@
+/**
+ * 请假管理页 WXS 工具
+ * 用于 WXML 模板内调用（原生不支持 JS 函数）
+ */
+
+function isSelected(arr, id) {
+  if (!arr || !arr.length) return false;
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i].id == id) {
+      return true;
+    }
+  }
+  return false;
+}
+
+module.exports = {
+  isSelected: isSelected
+};

@@ -1,0 +1,292 @@
+/**
+ * 签到模块样式
+ */
+
+.page-container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding-top: 88rpx;
+  padding-bottom: 120rpx;
+}
+
+/* ===== 区块卡片 ===== */
+.section-card {
+  background: #fff;
+  margin: 20rpx 24rpx;
+  padding: 28rpx 24rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1D2129;
+  margin-bottom: 24rpx;
+}
+
+/* ===== 表单 ===== */
+.section-card .form-group {
+  margin-bottom: 22rpx;
+}
+
+.section-card .form-label {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+
+.section-card .form-input,
+.section-card .picker {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 20rpx;
+  background: #f7f8fa;
+  border: 1rpx solid #e8e8e8;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.range-hint {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: -8rpx;
+}
+
+/* ===== 任务卡片 ===== */
+.task-card {
+  border: 1rpx solid #f0f0f0;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  margin-bottom: 16rpx;
+}
+
+.task-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10rpx;
+}
+
+.task-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1D2129;
+  flex: 1;
+}
+
+.task-info {
+  display: flex;
+  gap: 24rpx;
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 6rpx;
+}
+
+/* ===== 二维码展示 ===== */
+.qrcode-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16rpx 0;
+}
+
+.qrcode-img {
+  width: 320rpx;
+  border-radius: 12rpx;
+  border: 2rpx solid #f0f0f0;
+}
+
+.qrcode-code {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #1677FF;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}
+
+.task-actions {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 14rpx;
+}
+
+/* ===== 学生签到 ===== */
+.sign-row {
+  display: flex;
+  gap: 12rpx;
+  align-items: center;
+}
+
+.sign-input {
+  flex: 1;
+}
+
+/* ===== 历史记录 ===== */
+.history-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.history-info {
+  flex: 1;
+}
+
+.history-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+/* ===== 弹窗 ===== */
+.dialog-mask {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog-box {
+  width: 85vw;
+  background: #fff;
+  border-radius: 24rpx;
+  overflow: hidden;
+}
+
+.dialog-wide {
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  text-align: center;
+  padding: 28rpx 24rpx 16rpx;
+}
+
+.dialog-body {
+  padding: 16rpx 24rpx;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.dialog-footer {
+  padding: 16rpx 24rpx 24rpx;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.record-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.record-name {
+  font-size: 26rpx;
+  font-weight: 500;
+}
+
+.record-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.location-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.loc-info {
+  flex: 1;
+}
+
+.loc-coords {
+  font-size: 22rpx;
+}
+
+/* ===== 历史签到 ===== */
+.history-card {
+  border-color: #f5f5f5;
+  background: #fafafa;
+}
+
+/* ===== 考勤弹窗 ===== */
+.attendance-summary {
+  display: flex;
+  justify-content: center;
+  gap: 8rpx;
+  font-size: 24rpx;
+  font-weight: 400;
+  margin-top: 8rpx;
+}
+
+.attendance-row {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+  gap: 12rpx;
+}
+
+.row-unsigned {
+  background: #fff7e8;
+  margin: 0 -24rpx;
+  padding-left: 24rpx;
+  padding-right: 24rpx;
+}
+
+.att-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.att-name {
+  font-size: 26rpx;
+  font-weight: 500;
+  display: block;
+}
+
+.att-sno {
+  font-size: 22rpx;
+}
+
+.att-status {
+  flex-shrink: 0;
+}
+
+.att-status .tag {
+  font-size: 22rpx;
+}
+
+.att-actions {
+  flex-shrink: 0;
+}
+
+.att-actions .btn {
+  font-size: 22rpx;
+  padding: 6rpx 16rpx;
+}
+
+.btn-outline.btn-sm {
+  height: 28px;
+  line-height: 28px;
+  padding-top: 0;
+  padding-bottom: 0;
+}

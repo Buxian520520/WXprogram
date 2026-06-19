@@ -1,0 +1,168 @@
+<!--
+  请假管理页（教师端）
+  查看所有请假记录、批准/拒绝、批量删除
+-->
+<wxs module="utils" src="./leave-manage.wxs"></wxs>
+<view class="page-container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="goBack">
+      <text class="nav-back-icon"></text>
+      <text>返回</text>
+    </view>
+    <view class="nav-title">请假管理</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <input
+      class="filter-input"
+      placeholder="搜索学生姓名"
+      value="{{filterName}}"
+      bindinput="onFilterNameChange"
+    />
+    <picker
+      mode="selector"
+      range="{{statusOptions}}"
+      value="{{statusIndex}}"
+      bindchange="onStatusChange"
+    >
+      <view class="filter-picker">
+        {{statusOptions[statusIndex]}} ▾
+      </view>
+    </picker>
+    <button class="btn btn-primary btn-sm" bindtap="queryLeaves">查询</button>
+    <button class="btn btn-outline btn-sm ml-sm" bindtap="resetQuery">重置</button>
+  </view>
+
+  <!-- 统计 -->
+  <view class="stats-bar">
+    <text>共 {{total}} 条记录</text>
+    <text wx:if="{{selectLeaves.length > 0}}" class="text-danger">，已选 {{selectLeaves.length}} 条</text>
+  </view>
+
+  <!-- 批量操作 -->
+  <view wx:if="{{selectLeaves.length > 0}}" class="batch-bar">
+    <text>已选择 {{selectLeaves.length}} 项</text>
+    <view class="batch-actions">
+      <button class="btn btn-outline btn-sm" bindtap="selectAll">全选</button>
+      <button class="btn btn-danger btn-sm ml-sm" bindtap="batchDelete">批量删除</button>
+    </view>
+  </view>
+
+  <!-- 请假列表 -->
+  <scroll-view wx:if="{{pageLeaves.length > 0}}" class="leave-list" scroll-y>
+    <view
+      wx:for="{{pageLeaves}}"
+      wx:key="id"
+      class="leave-card {{utils.isSelected(selectLeaves, item.id) ? 'leave-card-selected' : ''}}"
+    >
+      <!-- 选择框 -->
+      <view class="card-checkbox" catchtap="toggleSelect" data-id="{{item.id}}">
+        <view class="checkbox {{utils.isSelected(selectLeaves, item.id) ? 'checkbox-checked' : ''}}">
+          <text wx:if="{{utils.isSelected(selectLeaves, item.id)}}">✓</text>
+        </view>
+      </view>
+
+      <!-- 信息 -->
+      <view class="card-body" catchtap="viewDetail" data-row="{{item}}">
+        <view class="card-header-row">
+          <text class="student-name">{{item.studentName}}</text>
+          <text class="tag {{item.leaveType === '病假' ? 'tag-warning' : item.leaveType === '事假' ? 'tag-info' : ''}}">{{item.leaveType}}</text>
+          <text class="tag {{item.status === 'pending' ? 'tag-warning' : item.status === 'approved' ? 'tag-success' : 'tag-danger'}}">
+            {{item.status === 'pending' ? '待审批' : item.status === 'approved' ? '已批准' : '已拒绝'}}
+          </text>
+        </view>
+        <view class="card-date-row text-muted">
+          <text>{{item.startDate}} ~ {{item.endDate}} ({{item.days}}天)</text>
+        </view>
+        <view class="card-reason text-muted" wx:if="{{item.reason}}">
+          <text>原因: {{item.reason}}</text>
+        </view>
+        <view class="card-time text-muted">
+          <text>申请: {{item.applyTime}}</text>
+          <text wx:if="{{item.approvalTime}}"> | 审批: {{item.approvalTime}}</text>
+        </view>
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="card-actions" wx:if="{{item.status === 'pending'}}">
+        <button class="btn btn-success btn-sm" catchtap="approveLeave" data-row="{{item}}">批准</button>
+        <button class="btn btn-danger btn-sm mt-sm" catchtap="rejectLeave" data-row="{{item}}">拒绝</button>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{pageLeaves.length === 0 && !loading}}" class="empty-text">
+    <view style="font-size: 60rpx;">📝</view>
+    <text>暂无请假记录</text>
+  </view>
+
+  <!-- 分页 -->
+  <view wx:if="{{total > 0}}" class="pagination">
+    <picker mode="selector" range="{{pageSizes}}" value="{{pageSizeIndex}}" bindchange="onPageSizeChange">
+      <view class="picker-inline">{{pagesize}}条/页 ▾</view>
+    </picker>
+    <view class="page-nav">
+      <button class="btn btn-sm btn-outline" bindtap="prevPage" disabled="{{currentpage <= 1}}">上一页</button>
+      <text class="page-text">{{currentpage}} / {{totalPages}}</text>
+      <button class="btn btn-sm btn-outline" bindtap="nextPage" disabled="{{currentpage >= totalPages}}">下一页</button>
+    </view>
+  </view>
+
+  <!-- 审批意见对话框（隐藏） -->
+  <view wx:if="{{showApprovalDialog}}" class="dialog-mask" bindtap="closeApprovalDialog">
+    <view class="dialog-box" catchtap="stopPropagation">
+      <view class="dialog-title">{{approvalType === 'approve' ? '批准请假' : '拒绝请假'}}</view>
+      <view class="dialog-body">
+        <view class="form-label">审批意见（可选）</view>
+        <textarea
+          class="form-textarea"
+          placeholder="请输入审批意见"
+          value="{{approvalComment}}"
+          bindinput="onApprovalComment"
+          maxlength="200"
+        ></textarea>
+      </view>
+      <view class="dialog-footer">
+        <button class="btn btn-outline btn-sm" bindtap="closeApprovalDialog">取消</button>
+        <button class="btn btn-primary btn-sm ml-sm" bindtap="submitApproval" loading="{{submitting}}">确定</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 详情对话框 -->
+  <view wx:if="{{showDetailDialog}}" class="dialog-mask" bindtap="closeDetailDialog">
+    <view class="dialog-box" catchtap="stopPropagation">
+      <view class="dialog-title">请假详情</view>
+      <view class="dialog-body">
+        <view class="detail-row"><text class="detail-label">学生姓名：</text><text>{{detailLeave.studentName}}</text></view>
+        <view class="detail-row"><text class="detail-label">学号：</text><text>{{detailLeave.studentNo}}</text></view>
+        <view class="detail-row"><text class="detail-label">请假类型：</text><text>{{detailLeave.leaveType}}</text></view>
+        <view class="detail-row"><text class="detail-label">状态：</text>
+          <text class="{{detailLeave.status === 'pending' ? 'text-warning' : detailLeave.status === 'approved' ? 'text-success' : 'text-danger'}}">
+            {{detailLeave.status === 'pending' ? '待审批' : detailLeave.status === 'approved' ? '已批准' : '已拒绝'}}
+          </text>
+        </view>
+        <view class="detail-row"><text class="detail-label">日期：</text><text>{{detailLeave.startDate}} ~ {{detailLeave.endDate}} ({{detailLeave.days}}天)</text></view>
+        <view class="detail-row"><text class="detail-label">申请时间：</text><text>{{detailLeave.applyTime}}</text></view>
+        <view class="detail-row"><text class="detail-label">原因：</text><text>{{detailLeave.reason}}</text></view>
+        <view wx:if="{{detailLeave.status !== 'pending'}}" class="detail-row">
+          <text class="detail-label">审批意见：</text><text>{{detailLeave.approvalComment || '无'}}</text>
+        </view>
+        <view wx:if="{{detailLeave.status !== 'pending'}}" class="detail-row">
+          <text class="detail-label">审批时间：</text><text>{{detailLeave.approvalTime || '无'}}</text>
+        </view>
+      </view>
+      <view class="dialog-footer">
+        <button class="btn btn-outline btn-sm" bindtap="closeDetailDialog">关闭</button>
+        <block wx:if="{{detailLeave.status === 'pending'}}">
+          <button class="btn btn-success btn-sm ml-sm" bindtap="approveFromDetail">批准</button>
+          <button class="btn btn-danger btn-sm ml-sm" bindtap="rejectFromDetail">拒绝</button>
+        </block>
+      </view>
+    </view>
+  </view>
+</view>
