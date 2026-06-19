@@ -6,7 +6,7 @@
   <!-- 申请请假卡片 -->
   <view class="form-card">
     <view class="card-header">
-      <text>📝 申请请假</text>
+      <text>申请请假</text>
       <text class="toggle-btn" bindtap="toggleForm">{{showForm ? '收起 ▲' : '展开 ▼'}}</text>
     </view>
 
@@ -88,7 +88,7 @@
   <!-- 我的请假记录 -->
   <view class="record-card">
     <view class="card-header">
-      <text>📋 我的请假记录</text>
+      <text>我的请假记录</text>
       <picker
         mode="selector"
         range="{{statusOptions}}"

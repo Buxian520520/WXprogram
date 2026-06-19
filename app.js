@@ -80,7 +80,7 @@ App({
     userRole: '',       // 'student' | 'teacher'
     displayName: '',    // 用户显示名（真实姓名或用户名）
     username: '',       // 登录用户名
-    baseURL: 'http://127.0.0.1:8000/'
+    baseURL: 'https://pa578fa9.natappfree.cc/'
   },
 
   /**

@@ -6,7 +6,16 @@
       "Bash(python manage.py makemigrations checkin)",
       "Bash(python manage.py migrate checkin)",
       "Bash(python -c \"import qrcode; print\\('ok'\\)\")",
-      "Bash(pip install *)"
+      "Bash(pip install *)",
+      "Bash(ipconfig)",
+      "Bash(cmd *)",
+      "Bash(pkill -f natapp)",
+      "Bash(\"M:\\\\natapp\\\\natapp_windows_amd64_3_0_3\\\\natapp.exe\" -authtoken=a56b80ea6a866133 -log=stdout -loglevel=INFO)",
+      "Bash(curl.exe -s -o /dev/null -w \"HTTPS: %{http_code}\\\\n\" \"https://pa578fa9.natappfree.cc/\")",
+      "Bash(curl.exe -s \"https://pa578fa9.natappfree.cc/\")",
+      "Bash(\"M:\\\\natapp\\\\natapp_windows_amd64_3_0_3\\\\natapp.exe\" -authtoken=a56b80ea6a866133 -log=stdout)",
+      "Bash(taskkill //F //IM natapp.exe)",
+      "Bash(curl.exe *)"
     ]
   }
 }

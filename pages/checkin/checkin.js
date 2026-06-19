@@ -47,11 +47,15 @@ Page({
   },
 
   onShow() {
+    // 定位操作进行中（权限弹窗/设置页导致 onHide/onShow）→ 完全跳过避免闪烁
+    if (this._locationBusy) return;
+
     const tabBar = this.getTabBar();
     if (tabBar) tabBar.syncSelected();
 
     const role = app.globalData.userRole || 'student';
     this.setData({ userRole: role });
+
     if (role === 'teacher') {
       this.loadActiveTasks();
       this.loadHistory();
@@ -100,8 +104,12 @@ Page({
     if (this.data.submitting) return;
 
     if (checkinType === 'location') {
+      this._locationBusy = true;
       this._getLocation((lat, lng) => {
+        this._locationBusy = false;
         this._doPublish(lat, lng);
+      }, () => {
+        this._locationBusy = false;
       });
     } else {
       this._doPublish(0, 0);
@@ -247,12 +255,15 @@ Page({
     const taskId = e.currentTarget.dataset.id;
     const that = this;
     this.setData({ locating: true });
+    this._locationBusy = true;
 
     this._getLocation((lat, lng) => {
       that.setData({ myLat: lat, myLng: lng, locating: false });
+      that._locationBusy = false;
       that._doStudentSign(taskId, 'location', { lat: lat, lng: lng });
     }, () => {
       that.setData({ locating: false });
+      that._locationBusy = false;
     });
   },
 

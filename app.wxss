@@ -176,11 +176,13 @@ page {
   border: 1rpx solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: var(--font-md);
+  line-height: 1;
   box-sizing: border-box;
 }
 
 .picker-placeholder {
   color: #ccc;
+  line-height: 1.2;
 }
 
 /* ==================== 标签 ==================== */

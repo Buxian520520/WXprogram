@@ -115,7 +115,7 @@
 
     <!-- ====== 历史签到 ====== -->
     <view class="section-card">
-      <view class="section-title">📜 历史签到记录</view>
+      <view class="section-title"> 历史签到记录</view>
       <view wx:if="{{historyTasks.length === 0}}" class="empty-text">暂无历史签到</view>
       <view wx:for="{{historyTasks}}" wx:key="id" class="task-card history-card">
         <view class="task-header">
@@ -195,14 +195,14 @@
             <button class="btn btn-primary btn-sm" bindtap="submitCodeCheckin" data-id="{{item.id}}" loading="{{submitting}}">签到</button>
           </view>
           <view class="sign-row" style="margin-top:12rpx;">
-            <button class="btn btn-outline btn-sm btn-block" bindtap="scanQrCode" data-id="{{item.id}}">📷 扫描二维码</button>
+            <button class="btn btn-outline btn-sm btn-block" bindtap="scanQrCode" data-id="{{item.id}}">扫描二维码</button>
           </view>
         </block>
 
         <!-- 位置签到 -->
         <block wx:if="{{item.type === 'location'}}">
           <button class="btn btn-success btn-block" bindtap="locationCheckin" data-id="{{item.id}}" loading="{{locating}}">
-            📍 获取位置并签到
+             获取位置并签到
           </button>
         </block>
       </view>
@@ -210,7 +210,7 @@
 
     <!-- 签到历史 -->
     <view class="section-card">
-      <view class="section-title">📜 我的签到记录</view>
+      <view class="section-title">我的签到记录</view>
       <view wx:if="{{myRecords.length === 0}}" class="empty-text">暂无记录</view>
       <view wx:for="{{myRecords}}" wx:key="id" class="history-row">
         <view class="history-info">

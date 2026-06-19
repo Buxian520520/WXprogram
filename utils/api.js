@@ -4,7 +4,7 @@
  * 完全兼容现有的 Django 后端 API
  */
 
-const BASE_URL = 'http://127.0.0.1:8000/';
+const BASE_URL = 'https://pa578fa9.natappfree.cc/';
 
 // ==================== Token 管理 ====================
 
