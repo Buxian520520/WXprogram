@@ -24,7 +24,13 @@ Page({
     taskRecords: [],
     showRecordsFor: null,         // 当前查看记录的任务 ID
     showLocationsFor: null,       // 当前查看位置的任务 ID
+    showLocationMap: false,      // 是否展示地图视图
     locationList: [],
+    mapLat: 0,                   // 地图中心纬度
+    mapLng: 0,                   // 地图中心经度
+    mapMarkers: [],              // 地图标记点
+    mapCircles: [],              // 签到范围圈
+    currentTaskRange: 100,       // 当前查看任务的签到范围
     showAttendanceFor: null,      // 当前查看考勤的任务 ID
     attendanceData: null,         // { task, total, signedCount, unsignedCount, list }
 
@@ -35,6 +41,17 @@ Page({
     myLat: 0,
     myLng: 0,
     locating: false,
+
+    // ===== 学生：位置签到地图 =====
+    studentMapVisible: false,
+    studentMapLat: 0,
+    studentMapLng: 0,
+    studentMapMarkers: [],
+    studentMapCircles: [],
+    studentSignTaskId: null,
+    studentMapTeacherLat: 0,
+    studentMapTeacherLng: 0,
+    studentMapRange: 100,
 
     // 通用
     loading: false,
@@ -187,16 +204,155 @@ Page({
 
   viewLocations(e) {
     const taskId = e.currentTarget.dataset.id;
-    this.setData({ showLocationsFor: taskId, showRecordsFor: null });
+
+    // 从 activeTasks 找到教师发布的位置和范围
+    const task = (this.data.activeTasks || []).find(t => t.id == taskId);
+    const teacherLat = task ? task.lat : 0;
+    const teacherLng = task ? task.lng : 0;
+    const range = task ? task.range : 100;
+
+    // 隐藏底部 tab-bar，避免遮挡地图
+    const tabBar = this.getTabBar();
+    if (tabBar) tabBar.setData({ tabBarHidden: true });
+
+    this.setData({ showLocationsFor: taskId, showRecordsFor: null, showLocationMap: true, currentTaskRange: range });
+
     api.get('checkin/locations/', { task_id: taskId }).then(res => {
       if (res.code === 1) {
-        this.setData({ locationList: res.data || [] });
+        const list = res.data || [];
+        this.setData({ locationList: list });
+        this._buildMap(teacherLat, teacherLng, range, list);
       }
     }).catch(() => {});
   },
 
+  // 构建地图数据：优先以教师坐标为中心，否则使用地图内置定位
+  _buildMap(teacherLat, teacherLng, range, locationList) {
+    const markers = [];
+
+    // 教师标记（参考原点）
+    if (teacherLat && teacherLng) {
+      markers.push({
+        id: 0,
+        latitude: teacherLat,
+        longitude: teacherLng,
+        width: 32,
+        height: 32,
+        callout: {
+          content: '📍 教师位置',
+          color: '#E74C3C',
+          fontSize: 13,
+          borderRadius: 8,
+          padding: 6,
+          display: 'ALWAYS'
+        },
+        label: {
+          content: '教师',
+          color: '#E74C3C',
+          fontSize: 12,
+          anchorX: 0,
+          anchorY: -12
+        }
+      });
+    }
+
+    // 学生标记
+    (locationList || []).forEach((item, idx) => {
+      if (item.lat && item.lng) {
+        markers.push({
+          id: idx + 1,
+          latitude: item.lat,
+          longitude: item.lng,
+          width: 24,
+          height: 24,
+          callout: {
+            content: `${item.name}`,
+            color: '#1677FF',
+            fontSize: 12,
+            borderRadius: 6,
+            padding: 4,
+            display: 'BYCLICK'
+          },
+          label: {
+            content: `${idx + 1}`,
+            color: '#fff',
+            fontSize: 10,
+            anchorX: -0.5,
+            anchorY: -1
+          }
+        });
+      }
+    });
+
+    // 签到范围圈
+    const circles = [];
+    if (teacherLat && teacherLng && range) {
+      circles.push({
+        latitude: teacherLat,
+        longitude: teacherLng,
+        radius: range,
+        color: '#1677FF66',
+        fillColor: '#1677FF1A',
+        strokeWidth: 2
+      });
+    }
+
+    // 确定地图中心
+    if (teacherLat && teacherLng) {
+      // 优先教师坐标
+      this.setData({
+        mapLat: teacherLat,
+        mapLng: teacherLng,
+        mapMarkers: markers,
+        mapCircles: circles,
+        mapScale: 17
+      });
+    } else if ((locationList || []).some(item => item.lat && item.lng)) {
+      // 其次用第一个学生的坐标
+      const first = (locationList || []).find(item => item.lat && item.lng);
+      this.setData({
+        mapLat: first.lat,
+        mapLng: first.lng,
+        mapMarkers: markers,
+        mapCircles: circles,
+        mapScale: 17
+      });
+    } else {
+      // 都没有 → 先用默认值渲染，再让地图自己定位
+      this.setData({
+        mapLat: 0,
+        mapLng: 0,
+        mapMarkers: markers,
+        mapCircles: circles,
+        mapScale: 17
+      });
+      // 延迟调用 moveToLocation，等地图渲染完毕
+      setTimeout(() => {
+        const mapCtx = wx.createMapContext('locationMap', this);
+        mapCtx.moveToLocation();
+      }, 300);
+    }
+  },
+
   closeLocations() {
-    this.setData({ showLocationsFor: null, locationList: [] });
+    // 恢复底部 tab-bar
+    const tabBar = this.getTabBar();
+    if (tabBar) tabBar.setData({ tabBarHidden: false });
+
+    this.setData({ showLocationsFor: null, locationList: [], showLocationMap: false, mapMarkers: [], mapCircles: [], currentTaskRange: 100 });
+  },
+
+  // 点击地图标记
+  onMapMarkerTap(e) {
+    const markerId = e.detail.markerId;
+    if (markerId === 0) {
+      wx.showToast({ title: '教师参考位置', icon: 'none' });
+      return;
+    }
+    const student = this.data.locationList[markerId - 1];
+    if (student) {
+      wx.showToast({ title: `${student.name} (${student.sno})`, icon: 'none' });
+    }
   },
 
   // ==================== 学生：加载进行中的签到 ====================
@@ -254,17 +410,129 @@ Page({
   locationCheckin(e) {
     const taskId = e.currentTarget.dataset.id;
     const that = this;
-    this.setData({ locating: true });
+
+    // 找到对应任务获取教师位置和范围
+    const task = (this.data.studentTasks || []).find(t => t.id == taskId);
+    const teacherLat = task ? task.lat : 0;
+    const teacherLng = task ? task.lng : 0;
+    const range = task ? task.range : 100;
+
+    this.setData({ locating: true, studentSignTaskId: taskId, studentMapRange: range });
     this._locationBusy = true;
 
     this._getLocation((lat, lng) => {
-      that.setData({ myLat: lat, myLng: lng, locating: false });
+      that.setData({ myLat: lat, myLng: lng, locating: false, studentMapLat: lat, studentMapLng: lng });
       that._locationBusy = false;
-      that._doStudentSign(taskId, 'location', { lat: lat, lng: lng });
+      that._openStudentMap(lat, lng, teacherLat, teacherLng, range);
     }, () => {
       that.setData({ locating: false });
       that._locationBusy = false;
     });
+  },
+
+  // 打开学生端位置签到地图
+  _openStudentMap(studentLat, studentLng, teacherLat, teacherLng, range) {
+    const markers = [];
+
+    // 学生位置标记
+    markers.push({
+      id: 0,
+      latitude: studentLat,
+      longitude: studentLng,
+      width: 32,
+      height: 32,
+      callout: {
+        content: '📍 我的位置',
+        color: '#E74C3C',
+        fontSize: 13,
+        borderRadius: 8,
+        padding: 6,
+        display: 'ALWAYS'
+      },
+      label: {
+        content: '我',
+        color: '#E74C3C',
+        fontSize: 12,
+        anchorX: 0,
+        anchorY: -12
+      }
+    });
+
+    // 教师位置标记
+    if (teacherLat && teacherLng) {
+      markers.push({
+        id: 1,
+        latitude: teacherLat,
+        longitude: teacherLng,
+        width: 28,
+        height: 28,
+        callout: {
+          content: '教师位置',
+          color: '#1677FF',
+          fontSize: 12,
+          borderRadius: 6,
+          padding: 4,
+          display: 'ALWAYS'
+        },
+        label: {
+          content: '教师',
+          color: '#1677FF',
+          fontSize: 12,
+          anchorX: 0,
+          anchorY: -12
+        }
+      });
+    }
+
+    // 范围圈
+    const circles = [];
+    if (teacherLat && teacherLng && range) {
+      circles.push({
+        latitude: teacherLat,
+        longitude: teacherLng,
+        radius: range,
+        color: '#1677FF66',
+        fillColor: '#1677FF1A',
+        strokeWidth: 2
+      });
+    }
+
+    // 隐藏 tab-bar
+    const tabBar = this.getTabBar();
+    if (tabBar) tabBar.setData({ tabBarHidden: true });
+
+    this.setData({
+      studentMapVisible: true,
+      studentMapTeacherLat: teacherLat,
+      studentMapTeacherLng: teacherLng,
+      studentMapMarkers: markers,
+      studentMapCircles: circles,
+      studentMapRange: range
+    });
+  },
+
+  // 关闭学生端地图
+  closeStudentMap() {
+    const tabBar = this.getTabBar();
+    if (tabBar) tabBar.setData({ tabBarHidden: false });
+
+    this.setData({
+      studentMapVisible: false,
+      studentMapMarkers: [],
+      studentMapCircles: []
+    });
+  },
+
+  // 在地图上确认签到
+  confirmLocationCheckin() {
+    const taskId = this.data.studentSignTaskId;
+    const lat = this.data.myLat;
+    const lng = this.data.myLng;
+    if (!taskId) return;
+
+    // 先关闭地图再签到
+    this.closeStudentMap();
+    this._doStudentSign(taskId, 'location', { lat: lat, lng: lng });
   },
 
   _doStudentSign(taskId, type, extra) {
@@ -299,6 +567,37 @@ Page({
         this.setData({ historyTasks: res.data || [] });
       }
     }).catch(() => {});
+  },
+
+  // 删除历史签到任务
+  deleteHistoryTask(e) {
+    const taskId = e.currentTarget.dataset.id;
+    const task = (this.data.historyTasks || []).find(t => t.id == taskId);
+    const taskTitle = task ? task.title : '该签到任务';
+
+    wx.showModal({
+      title: '确认删除',
+      content: `确定要删除「${taskTitle}」及其所有签到记录吗？此操作不可恢复。`,
+      confirmColor: '#F53F3F',
+      success: (res) => {
+        if (res.confirm) {
+          api.post('checkin/delete/', { task_id: taskId }).then(res => {
+            if (res.code === 1) {
+              wx.showToast({ title: '已删除', icon: 'success' });
+              // 如果正在查看该任务的考勤，关闭弹窗
+              if (this.data.showAttendanceFor == taskId) {
+                this.setData({ showAttendanceFor: null, attendanceData: null });
+              }
+              this.loadHistory();
+            } else {
+              wx.showToast({ title: res.msg || '删除失败', icon: 'none' });
+            }
+          }).catch(() => {
+            wx.showToast({ title: '删除失败', icon: 'none' });
+          });
+        }
+      }
+    });
   },
 
   // 查看考勤详情（全员含未签到）
@@ -430,6 +729,8 @@ Page({
   _doGetLocation(successCb, failCb) {
     wx.getLocation({
       type: 'gcj02',
+      isHighAccuracy: true,
+      highAccuracyExpireTime: 15000,
       success(res) {
         if (successCb) successCb(res.latitude, res.longitude);
       },

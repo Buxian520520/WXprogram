@@ -119,9 +119,9 @@
           bindchange="onLeaveTypeChange"
         >
           <view class="picker">
-            <text class="{{leaveForm.leaveType ? '' : 'picker-placeholder'}}">
+            <view class="{{leaveForm.leaveType ? '' : 'picker-placeholder'}}">
               {{leaveForm.leaveType || '请选择请假类型'}}
-            </text>
+            </view>
           </view>
         </picker>
         <view wx:if="{{errors.leaveType}}" class="form-error">{{errors.leaveType}}</view>
@@ -135,9 +135,9 @@
           bindchange="onStartDateChange"
         >
           <view class="picker">
-            <text class="{{leaveForm.startDate ? '' : 'picker-placeholder'}}">
+            <view class="{{leaveForm.startDate ? '' : 'picker-placeholder'}}">
               {{leaveForm.startDate || '请选择开始日期'}}
-            </text>
+            </view>
           </view>
         </picker>
         <view wx:if="{{errors.startDate}}" class="form-error">{{errors.startDate}}</view>
@@ -152,9 +152,9 @@
           bindchange="onEndDateChange"
         >
           <view class="picker">
-            <text class="{{leaveForm.endDate ? '' : 'picker-placeholder'}}">
+            <view class="{{leaveForm.endDate ? '' : 'picker-placeholder'}}">
               {{leaveForm.endDate || '请选择结束日期'}}
-            </text>
+            </view>
           </view>
         </picker>
         <view wx:if="{{errors.endDate}}" class="form-error">{{errors.endDate}}</view>

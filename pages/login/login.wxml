@@ -139,9 +139,9 @@
           bindchange="onGenderChange"
         >
           <view class="picker">
-            <text class="{{registerForm.gender ? '' : 'picker-placeholder'}}">
+            <view class="{{registerForm.gender ? '' : 'picker-placeholder'}}">
               {{registerForm.gender || '请选择性别'}}
-            </text>
+            </view>
           </view>
         </picker>
         <view wx:if="{{regErrors.gender}}" class="form-error">{{regErrors.gender}}</view>
@@ -156,9 +156,9 @@
           bindchange="onBirthdayChange"
         >
           <view class="picker">
-            <text class="{{registerForm.birthday ? '' : 'picker-placeholder'}}">
+            <view class="{{registerForm.birthday ? '' : 'picker-placeholder'}}">
               {{registerForm.birthday || '请选择生日'}}
-            </text>
+            </view>
           </view>
         </picker>
         <view wx:if="{{regErrors.birthday}}" class="form-error">{{regErrors.birthday}}</view>

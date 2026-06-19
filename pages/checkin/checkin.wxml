@@ -38,7 +38,7 @@
 
     <!-- 进行中的任务 -->
     <view class="section-card">
-      <view class="section-title">📌 进行中的签到 ({{activeTasks.length}})</view>
+      <view class="section-title">进行中的签到 ({{activeTasks.length}})</view>
 
       <view wx:if="{{activeTasks.length === 0 && !loading}}" class="empty-text">暂无进行中的签到</view>
 
@@ -91,25 +91,57 @@
       </view>
     </view>
 
-    <!-- 位置查看弹窗 -->
-    <view wx:if="{{showLocationsFor}}" class="dialog-mask" bindtap="closeLocations">
-      <view class="dialog-box dialog-wide" catchtap="stopPropagation">
-        <view class="dialog-title">学生位置分布</view>
-        <view class="dialog-body">
+    <!-- 位置查看弹窗（含地图） -->
+    <view wx:if="{{showLocationsFor}}" class="location-map-overlay">
+      <!-- 地图区域 -->
+      <view class="location-map-wrap">
+        <map
+          id="locationMap"
+          class="location-map"
+          latitude="{{mapLat}}"
+          longitude="{{mapLng}}"
+          scale="{{mapScale}}"
+          markers="{{mapMarkers}}"
+          circles="{{mapCircles}}"
+          show-location="{{true}}"
+          bindmarkertap="onMapMarkerTap"
+        />
+        <!-- 图例 -->
+        <view class="map-legend">
+          <view class="legend-item">
+            <view class="legend-dot legend-teacher"></view>
+            <text>教师位置</text>
+          </view>
+          <view class="legend-item">
+            <view class="legend-dot legend-student"></view>
+            <text>学生位置</text>
+          </view>
+          <view class="legend-item">
+            <view class="legend-circle"></view>
+            <text>签到范围({{currentTaskRange}}m)</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 底部面板 -->
+      <view class="location-panel" catchtap="stopPropagation">
+        <view class="panel-header">
+          <text class="panel-title">学生位置列表 ({{locationList.length}}人)</text>
+          <button class="btn btn-outline btn-sm" bindtap="closeLocations">关闭</button>
+        </view>
+        <scroll-view class="panel-body" scroll-y>
           <view wx:if="{{locationList.length === 0}}" class="empty-text">暂无位置数据</view>
           <view wx:for="{{locationList}}" wx:key="sno" class="location-row">
+            <view class="loc-num">{{index + 1}}</view>
             <view class="loc-info">
               <text class="record-name">{{item.name}} ({{item.sno}})</text>
               <text class="text-muted">{{item.signTime}}</text>
             </view>
             <view class="loc-coords">
-              <text class="text-primary">{{item.lat}}, {{item.lng}}</text>
+              <text class="text-primary">{{item.lat.toFixed(6)}}, {{item.lng.toFixed(6)}}</text>
             </view>
           </view>
-        </view>
-        <view class="dialog-footer">
-          <button class="btn btn-outline btn-sm" bindtap="closeLocations">关闭</button>
-        </view>
+        </scroll-view>
       </view>
     </view>
 
@@ -130,6 +162,7 @@
         </view>
         <view class="task-actions">
           <button class="btn btn-outline btn-sm" bindtap="viewAttendance" data-id="{{item.id}}">查看考勤</button>
+          <button class="btn btn-danger btn-sm" bindtap="deleteHistoryTask" data-id="{{item.id}}">删除</button>
         </view>
       </view>
     </view>
@@ -173,7 +206,7 @@
 
     <!-- 进行中的签到 -->
     <view class="section-card">
-      <view class="section-title">📌 可签到任务</view>
+      <view class="section-title"> 可签到任务</view>
 
       <view wx:if="{{studentTasks.length === 0}}" class="empty-text">暂无进行中的签到</view>
 
@@ -220,6 +253,49 @@
         <text class="tag {{item.type === 'qrcode' ? 'tag-primary' : 'tag-success'}}">
           {{item.type === 'qrcode' ? '二维码' : '位置'}}
         </text>
+      </view>
+    </view>
+
+    <!-- 学生端：位置签到地图 -->
+    <view wx:if="{{studentMapVisible}}" class="location-map-overlay">
+      <view class="location-map-wrap">
+        <map
+          id="studentLocationMap"
+          class="location-map"
+          latitude="{{studentMapLat}}"
+          longitude="{{studentMapLng}}"
+          scale="{{17}}"
+          markers="{{studentMapMarkers}}"
+          circles="{{studentMapCircles}}"
+          show-location="{{false}}"
+        />
+        <view class="map-legend">
+          <view class="legend-item">
+            <view class="legend-dot legend-teacher"></view>
+            <text>我的位置</text>
+          </view>
+          <view wx:if="{{studentMapTeacherLat && studentMapTeacherLng}}" class="legend-item">
+            <view class="legend-dot legend-student"></view>
+            <text>教师位置</text>
+          </view>
+          <view wx:if="{{studentMapTeacherLat && studentMapTeacherLng}}" class="legend-item">
+            <view class="legend-circle"></view>
+            <text>签到范围({{studentMapRange}}m)</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="location-panel" catchtap="stopPropagation">
+        <view class="panel-header">
+          <text class="panel-title">确认签到位置</text>
+        </view>
+        <view class="panel-body" style="text-align:center; padding: 24rpx;">
+          <text class="text-muted" style="font-size:26rpx;">请确认地图上您的位置是否正确</text>
+        </view>
+        <view style="display:flex; gap:20rpx; padding:0 24rpx 24rpx;">
+          <button class="btn btn-outline btn-block" bindtap="closeStudentMap" style="flex:1;">取消</button>
+          <button class="btn btn-primary btn-block" bindtap="confirmLocationCheckin" style="flex:1;" loading="{{submitting}}">确认签到</button>
+        </view>
       </view>
     </view>
   </block>

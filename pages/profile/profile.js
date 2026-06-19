@@ -71,6 +71,29 @@ Page({
     wx.navigateTo({ url: url });
   },
 
+  // AI 对话入口：启用悬浮 trigger
+  enableAiDialog() {
+    // 先设全局标记，确保跨页面实例也能读到
+    app.globalData.aiDialogEnabled = true;
+
+    const fp = this.selectComponent('#aiFloatingPanel');
+    if (fp) {
+      fp.enableTrigger();
+      wx.showToast({ title: 'AI 对话已开启', icon: 'success', duration: 1200 });
+    } else {
+      // 组件尚未挂载：再次 onShow 时 pageLifetimes 会同步
+      wx.showToast({ title: 'AI 对话已开启，请切换页面后查看', icon: 'success', duration: 1500 });
+    }
+  },
+
+  // 浮动面板状态变化时，控制 tab-bar 显隐
+  onFpStateChange(e) {
+    const tabBar = this.getTabBar();
+    if (tabBar) {
+      tabBar.setData({ tabBarHidden: e.detail.isOpen });
+    }
+  },
+
   handleLogout() {
     const that = this;
     wx.showModal({

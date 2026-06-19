@@ -9,7 +9,9 @@ const app = getApp();
 Component({
   data: {
     selected: 0,
-    list: []
+    list: [],
+    role: 'student',
+    tabBarHidden: false
   },
 
   lifetimes: {
@@ -21,17 +23,18 @@ Component({
   methods: {
     updateTabs() {
       const role = app.globalData.userRole || wx.getStorageSync('user_info')?.role || 'student';
+      this.setData({ role });
       const allTabs = [
-        { pagePath: '/pages/student-list/student-list', text: '学生信息', iconPath: '/images/tab/student.png', selectedIconPath: '/images/tab/student-active.png', role: 'teacher' },
-        { pagePath: '/pages/charts/charts', text: '数据中心', iconPath: '/images/tab/chart.png', selectedIconPath: '/images/tab/chart-active.png', role: 'teacher' },
-        { pagePath: '/pages/checkin/checkin', text: '签到', iconPath: '/images/tab/checkin.png', selectedIconPath: '/images/tab/checkin-active.png', role: 'all' },
-        { pagePath: '/pages/leave-apply/leave-apply', text: '请假', iconPath: '/images/tab/chart.png', selectedIconPath: '/images/tab/chart-active.png', role: 'student' },
-        { pagePath: '/pages/profile/profile', text: '我的', iconPath: '/images/tab/profile.png', selectedIconPath: '/images/tab/profile-active.png', role: 'all' }
+        { pagePath: '/pages/student-list/student-list', text: '学生信息', iconPath: '/icon/xueshengdangan.png', role: 'teacher' },
+        { pagePath: '/pages/charts/charts', text: '数据中心', iconPath: '/icon/a-04StartupSet4.png', role: 'teacher' },
+        { pagePath: '/pages/checkin/checkin', text: '签到', iconPath: '/icon/qiandao.png', role: 'all' },
+        { pagePath: '/pages/leave-apply/leave-apply', text: '请假', iconPath: '/icon/qingjiajilu.png', role: 'student' },
+        { pagePath: '/pages/profile/profile', text: '我的', iconPath: '/icon/guanyu.png', role: 'all' }
       ];
 
       const list = allTabs
         .filter(tab => tab.role === 'all' || tab.role === role)
-        .map(({ pagePath, text, iconPath, selectedIconPath }) => ({ pagePath, text, iconPath, selectedIconPath }));
+        .map(({ pagePath, text, iconPath }) => ({ pagePath, text, iconPath }));
 
       this.setData({ list }, () => this.syncSelected());
     },

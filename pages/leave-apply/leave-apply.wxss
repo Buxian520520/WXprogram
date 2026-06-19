@@ -4,7 +4,7 @@
 
 .page-container {
   padding-top: 88rpx;
-  padding-bottom: 120rpx;
+  padding-bottom: 240rpx;
 }
 
 /* ===== 表单卡片 ===== */

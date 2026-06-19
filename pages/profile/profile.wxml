@@ -7,9 +7,9 @@
     <view class="header-info">
       <view class="header-name">{{displayName || '未登录'}}</view>
       <view class="header-role">
-        <text class="tag {{userRole === 'teacher' ? 'tag-primary' : 'tag-success'}}">
+        <view class="tag {{userRole === 'teacher' ? 'tag-primary' : 'tag-success'}}">
           {{userRole === 'teacher' ? '教师' : '学生'}}
-        </text>
+        </view>
       </view>
     </view>
   </view>
@@ -38,6 +38,11 @@
         <view class="menu-text">课程管理</view>
         <view class="menu-arrow">›</view>
       </view>
+      <view class="menu-item" bindtap="enableAiDialog">
+        <view class="menu-icon"></view>
+        <view class="menu-text">AI 对话</view>
+        <view class="menu-arrow">›</view>
+      </view>
     </block>
 
     <!-- 学生菜单 -->
@@ -50,6 +55,11 @@
       <view class="menu-item" bindtap="navigateTo" data-url="/pages/leave-apply/leave-apply">
         <view class="menu-icon"></view>
         <view class="menu-text">我的请假</view>
+        <view class="menu-arrow">›</view>
+      </view>
+      <view class="menu-item" bindtap="enableAiDialog">
+        <view class="menu-icon"></view>
+        <view class="menu-text">AI 对话</view>
         <view class="menu-arrow">›</view>
       </view>
     </block>
@@ -68,4 +78,7 @@
   <view class="logout-section">
     <button class="btn btn-danger btn-block" bindtap="handleLogout">安全退出</button>
   </view>
+
+  <!-- AI 助手 -->
+  <floating-panel id="aiFloatingPanel" title="AI 助手" bindstatechange="onFpStateChange"></floating-panel>
 </view>

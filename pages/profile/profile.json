@@ -1,4 +1,6 @@
 {
-  "usingComponents": {},
+  "usingComponents": {
+    "floating-panel": "/components/floating-panel/floating-panel"
+  },
   "navigationBarTitleText": "我的"
 }

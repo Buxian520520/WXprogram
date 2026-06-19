@@ -182,12 +182,17 @@ page {
 
 .picker-placeholder {
   color: #ccc;
-  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 
 /* ==================== 标签 ==================== */
 .tag {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   padding: 4rpx 16rpx;
   border-radius: var(--radius-sm);
   font-size: var(--font-xs);

@@ -80,7 +80,8 @@ App({
     userRole: '',       // 'student' | 'teacher'
     displayName: '',    // 用户显示名（真实姓名或用户名）
     username: '',       // 登录用户名
-    baseURL: 'https://pa578fa9.natappfree.cc/'
+    baseURL: 'https://pa578fa9.natappfree.cc/',
+    aiDialogEnabled: false  // AI 对话悬浮窗是否启用
   },
 
   /**

@@ -68,8 +68,13 @@
   </view>
 
   <!-- 触发按钮 -->
-  <view wx:if="{{showTrigger}}" class="fp-trigger" bindtap="openPanel">
-    <text class="fp-trigger-icon"></text>
+  <view wx:if="{{showTrigger}}" class="fp-trigger">
+    <view class="fp-trigger-main" bindtap="openPanel">
+      <text class="fp-trigger-icon"></text>
+    </view>
+    <view class="fp-trigger-close" bindtap="dismissTrigger">
+      <text>✕</text>
+    </view>
   </view>
 
 </view>

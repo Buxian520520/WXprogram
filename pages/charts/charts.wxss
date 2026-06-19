@@ -5,7 +5,7 @@
 /* ==================== 教师：图表 ==================== */
 
 .charts-container {
-  padding: calc(88rpx + 24rpx) 24rpx 120rpx;
+  padding: calc(88rpx + 24rpx) 24rpx calc(98rpx + env(safe-area-inset-bottom) + 30rpx);
 }
 
 .charts-title {

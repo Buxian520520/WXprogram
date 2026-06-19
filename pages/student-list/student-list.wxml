@@ -128,4 +128,4 @@
 </view>
 
 <!-- AI 助手窗口 -->
-<floating-panel title="AI 助手"></floating-panel>
+<floating-panel title="AI 助手" bindstatechange="onFpStateChange"></floating-panel>

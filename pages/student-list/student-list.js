@@ -334,17 +334,18 @@ Page({
 
   exportExcel() {
     const that = this;
-    // 先让用户选择操作，确认后再导出
+    // 先让用户选择操作：转发还是打开查看
     wx.showActionSheet({
-      itemList: ['导出并打开文件'],
+      itemList: ['转发给好友', '打开文件查看'],
       itemColor: '#1677FF',
-      success() {
-        that._doExport();
+      success(res) {
+        const action = res.tapIndex === 0 ? 'share' : 'open';
+        that._doExport(action);
       }
     });
   },
 
-  _doExport() {
+  _doExport(action) {
     wx.showLoading({ title: '导出中...' });
     const token = api.getAccessToken();
 
@@ -354,17 +355,71 @@ Page({
       success: (downloadRes) => {
         wx.hideLoading();
         if (downloadRes.statusCode === 200) {
-          // 保存到本地后再打开，用户可在查看器中自行保存/转发
-          wx.openDocument({
-            filePath: downloadRes.tempFilePath,
-            fileType: 'xlsx',
-            success() {
-              wx.showToast({ title: '导出成功', icon: 'success' });
-            },
-            fail() {
-              wx.showToast({ title: '请安装Office查看', icon: 'none' });
+          const tempPath = downloadRes.tempFilePath;
+
+          // 先将临时文件保存到用户目录，避免 temp 被清理后无法访问
+          const fs = wx.getFileSystemManager();
+          try {
+            const savedRes = fs.saveFileSync(tempPath, `${wx.env.USER_DATA_PATH}/students_${Date.now()}.xlsx`);
+            const filePath = savedRes;
+
+            if (action === 'share') {
+              // 弹出微信转发面板，用户可发送到聊天
+              wx.shareFileMessage({
+                filePath: filePath,
+                fileName: '学生名单.xlsx',
+                success() {
+                  wx.showToast({ title: '转发成功', icon: 'success' });
+                },
+                fail(err) {
+                  // 用户取消转发不算失败
+                  if (err.errMsg && err.errMsg.indexOf('cancel') === -1) {
+                    wx.showToast({ title: '转发失败', icon: 'none' });
+                  }
+                }
+              });
+            } else {
+              // 在系统查看器中打开，提供保存/打印等系统级选项
+              wx.openDocument({
+                filePath: filePath,
+                fileType: 'xlsx',
+                success() {
+                  wx.showToast({ title: '导出成功', icon: 'success' });
+                },
+                fail() {
+                  wx.showToast({ title: '请安装 Office 或 WPS 查看', icon: 'none' });
+                }
+              });
             }
-          });
+          } catch (saveErr) {
+            // 保存失败则直接用临时路径
+            console.error('saveFile error:', saveErr);
+            if (action === 'share') {
+              wx.shareFileMessage({
+                filePath: tempPath,
+                fileName: '学生名单.xlsx',
+                success() {
+                  wx.showToast({ title: '转发成功', icon: 'success' });
+                },
+                fail(err) {
+                  if (err.errMsg && err.errMsg.indexOf('cancel') === -1) {
+                    wx.showToast({ title: '转发失败', icon: 'none' });
+                  }
+                }
+              });
+            } else {
+              wx.openDocument({
+                filePath: tempPath,
+                fileType: 'xlsx',
+                success() {
+                  wx.showToast({ title: '导出成功', icon: 'success' });
+                },
+                fail() {
+                  wx.showToast({ title: '请安装 Office 或 WPS 查看', icon: 'none' });
+                }
+              });
+            }
+          }
         } else if (downloadRes.statusCode === 401) {
           wx.showToast({ title: '登录已过期，请重新登录', icon: 'none' });
         } else {
@@ -381,5 +436,13 @@ Page({
         wx.showToast({ title: '下载失败，请检查网络', icon: 'none' });
       }
     });
+  },
+
+  // 浮动面板状态变化时，控制 tab-bar 显隐
+  onFpStateChange(e) {
+    const tabBar = this.getTabBar();
+    if (tabBar) {
+      tabBar.setData({ tabBarHidden: e.detail.isOpen });
+    }
   }
 });

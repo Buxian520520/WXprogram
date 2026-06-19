@@ -3,6 +3,7 @@
  * 悬浮面板 + DeepSeek 聊天，API Key 已内置
  */
 var ai = require('../../utils/ai');
+var app = getApp();
 
 // 生成唯一消息 ID
 var _msgId = 0;
@@ -21,7 +22,8 @@ Component({
   data: {
     // 面板
     isOpen: false,
-    showTrigger: true,
+    showTrigger: false,
+    dismissed: true,
 
     // 聊天
     messages: [],       // [{id, role, content, time}]
@@ -32,30 +34,50 @@ Component({
 
   lifetimes: {
     attached: function () {
-      this.setData({
-        messages: [{
-          id: nextId(),
-          role: 'assistant',
-          content: '你好！我是 AI 助手，有什么可以帮你的？',
-          time: this._fmtTime()
-        }]
-      });
+      this._initChat();
+      this._syncDismissed();
+    }
+  },
+
+  pageLifetimes: {
+    show: function () {
+      this._syncDismissed();
     }
   },
 
   methods: {
+
+    // ========== 显隐同步 ==========
+
+    _syncDismissed: function () {
+      var dismissed = !app.globalData.aiDialogEnabled;
+      this.setData({ dismissed: dismissed, showTrigger: !dismissed });
+    },
+
+    enableTrigger: function () {
+      app.globalData.aiDialogEnabled = true;
+      this.setData({ dismissed: false, showTrigger: true });
+    },
+
+    dismissTrigger: function () {
+      app.globalData.aiDialogEnabled = false;
+      this.setData({ dismissed: true, showTrigger: false, isOpen: false });
+      this.triggerEvent('statechange', { isOpen: false });
+    },
 
     // ========== 面板 ==========
 
     openPanel: function () {
       if (this.data.isOpen) return;
       this.setData({ isOpen: true, showTrigger: false });
+      this.triggerEvent('statechange', { isOpen: true });
       this._scrollBottom();
     },
 
     closePanel: function () {
       if (!this.data.isOpen) return;
       this.setData({ isOpen: false });
+      this.triggerEvent('statechange', { isOpen: false });
     },
 
     hidePanel: function () {
@@ -64,8 +86,11 @@ Component({
 
     onPanelTransitionEnd: function () {
       if (!this.data.isOpen) {
+        var dismissed = this.data.dismissed;
         setTimeout(function () {
-          this.setData({ showTrigger: true });
+          if (!dismissed) {
+            this.setData({ showTrigger: true });
+          }
         }.bind(this), 50);
       }
     },
@@ -137,6 +162,17 @@ Component({
     },
 
     // ========== 内部 ==========
+
+    _initChat: function () {
+      this.setData({
+        messages: [{
+          id: nextId(),
+          role: 'assistant',
+          content: '你好！我是 AI 助手，有什么可以帮你的？',
+          time: this._fmtTime()
+        }]
+      });
+    },
 
     _buildContext: function (msgs) {
       var recent = msgs.slice(-20);
