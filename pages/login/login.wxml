@@ -58,9 +58,16 @@
         type="password"
         placeholder="请输入密码"
         value="{{loginForm.password}}"
+        password="{{!loginShowPassword}}"
         bindinput="onLoginFieldChange"
         data-field="password"
       />
+      <view class="pwd-toggle" bindtap="toggleLoginPassword">
+        <view class="pwd-checkbox {{loginShowPassword ? 'checked' : ''}}">
+          <text wx:if="{{loginShowPassword}}">✓</text>
+        </view>
+        <text class="pwd-toggle-text">显示密码</text>
+      </view>
     </view>
 
     <button class="btn btn-primary btn-block mt-lg" bindtap="handleLogin" disabled="{{loading}}">
@@ -110,9 +117,16 @@
         type="password"
         placeholder="请输入密码"
         value="{{registerForm.password}}"
+        password="{{!regShowPassword}}"
         bindinput="onRegFieldChange"
         data-field="password"
       />
+      <view class="pwd-toggle" bindtap="toggleRegPassword">
+        <view class="pwd-checkbox {{regShowPassword ? 'checked' : ''}}">
+          <text wx:if="{{regShowPassword}}">✓</text>
+        </view>
+        <text class="pwd-toggle-text">显示密码</text>
+      </view>
       <view wx:if="{{regErrors.password}}" class="form-error">{{regErrors.password}}</view>
     </view>
 

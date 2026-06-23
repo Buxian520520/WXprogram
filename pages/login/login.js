@@ -42,7 +42,11 @@ Page({
     // 通用
     loading: false,
     message: '',
-    messageType: 'error'
+    messageType: 'error',
+
+    // 密码显示控制
+    loginShowPassword: false,
+    regShowPassword: false
   },
 
   onLoad() {
@@ -71,6 +75,16 @@ Page({
   switchMode(e) {
     const mode = e.currentTarget.dataset.mode;
     this.setData({ mode, message: '', regErrors: {} });
+  },
+
+  // ==================== 密码显示切换 ====================
+
+  toggleLoginPassword() {
+    this.setData({ loginShowPassword: !this.data.loginShowPassword });
+  },
+
+  toggleRegPassword() {
+    this.setData({ regShowPassword: !this.data.regShowPassword });
   },
 
   // ==================== 登录角色选择 ====================

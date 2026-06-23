@@ -15,7 +15,22 @@
       "Bash(curl.exe -s \"https://pa578fa9.natappfree.cc/\")",
       "Bash(\"M:\\\\natapp\\\\natapp_windows_amd64_3_0_3\\\\natapp.exe\" -authtoken=a56b80ea6a866133 -log=stdout)",
       "Bash(taskkill //F //IM natapp.exe)",
-      "Bash(curl.exe *)"
+      "Bash(curl.exe *)",
+      "Bash(pip list *)",
+      "Bash(python generate_doc.py)",
+      "Bash(python -c \"import docx; print\\('python-docx available'\\)\")",
+      "Bash(python generate_appendix.py)",
+      "Bash(python format_appendix.py)",
+      "Bash(python generate_script.py)",
+      "Bash(python generate_script_v2.py)",
+      "Bash(python fix_body_font.py)",
+      "Bash(python fix_code_font.py)",
+      "Bash(python reformat_appendix.py)",
+      "Bash(python finalize_appendix.py)",
+      "Bash(python fix_line_spacing.py)",
+      "Bash(python generate_script_v3.py)",
+      "Bash(python gen_v3.py)",
+      "Bash(python gen_v4.py)"
     ]
   }
 }

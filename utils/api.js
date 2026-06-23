@@ -1,13 +1,10 @@
 /**
  * API 请求封装模块
- * 封装 wx.request，提供 Token 管理、自动刷新、请求拦截功能
- * 完全兼容现有的 Django 后端 API
+ * 封装 wx.request，提供Token 管理、自动刷新、请求拦截功能
  */
 
-const BASE_URL = 'https://pa578fa9.natappfree.cc/';
-
+const BASE_URL = 'http://fe33969a.natappfree.cc/';
 // ==================== Token 管理 ====================
-
 function getAccessToken() {
   try {
     const tokenData = wx.getStorageSync('token_data');
@@ -99,7 +96,7 @@ function request(options) {
       headers['Authorization'] = 'Bearer ' + token;
     }
   }
-  // 仅在未显式设置 Content-Type 时默认 JSON
+  //仅在未显式设置 Content-Type 时默认JSON
   if (!headers['Content-Type'] && !headers['content-type']) {
     headers['Content-Type'] = 'application/json';
   }

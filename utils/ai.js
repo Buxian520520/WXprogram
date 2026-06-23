@@ -8,8 +8,6 @@
 
 var API_URL = 'https://api.deepseek.com/v1/chat/completions';
 var MODEL = 'deepseek-chat';
-
-// 默认 Key（已内置，用户无需手动输入）
 var DEFAULT_KEY = 'sk-ac34ca6ee57c4ebdb4e0b8b2ae7eb01e';
 var _apiKey = DEFAULT_KEY;
 

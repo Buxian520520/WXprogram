@@ -1,0 +1,93 @@
+[
+  {
+    "type": "para",
+    "text": "NETMAXXX 学生管理系统"
+  },
+  {
+    "type": "para",
+    "text": "微信小程序演示讲解稿（技术详解版 v3）"
+  },
+  {
+    "type": "title",
+    "text": "一、项目概述与技术架构",
+    "level": 1
+  },
+  {
+    "type": "para",
+    "text": "大家好，我今天展示的项目是 NETMAXXX 学生管理系统。这是一个基于微信小程序平台开发的、面向高校师生日常管理场景的综合信息管理系统。系统支持学生和教师两种角色，涵盖学生档案管理、课堂签到、请假审批、数据统计分析和 AI 智能对话等完整的校园管理功能模块。"
+  },
+  {
+    "type": "para",
+    "text": "在技术选型上，前端采用微信原生框架进行开发，没有使用 uni-app 或 Taro 等第三方跨端框架，因此可以最大程度地调用微信小程序的底层硬件能力——包括 GPS 定位、摄像头扫码、地图渲染、文件系统操作等。每个页面由四种文件组成：WXML 模板文件负责界面结构，使用微信自己的组件体系如 view、text、image、input、picker、map 等；WXSS 样式文件负责视觉效果，语法兼容 CSS，支持 flexbox 弹性布局、CSS 变量、关键帧动画等现代特性；JS 逻辑文件使用 Page() 或 Component() 构造器注册，通过 setData 方法驱动视图更新；JSON 配置文件负责页面级设置。"
+  },
+  {
+    "type": "para",
+    "text": "前端样式体系的设计是本次开发的一个重点。在全局样式文件 app.wxss 中，我们使用 CSS 自定义属性定义了一套完整的设计令牌——包括 --color-primary 品牌蓝色 #1677FF、--color-success 成功绿色 #00B42A、--color-warning 警告橙色 #FF7D00、--color-danger 危险红色 #F53F3F 等语义化颜色变量；--radius-sm/md/lg 三级圆角变量（4rpx/8rpx/12rpx）；--spacing-xs/sm/md/lg 四级间距变量（8rpx 到 32rpx）；--font-xs/sm/md/lg/xl 五级字号变量（22rpx 到 36rpx）。这些变量统一声明在 page 选择器上，所有子页面和组件通过 var() 函数引用，实现了全局主题的一致性。当需要调整主题色时，只需修改 app.wxss 中的一处定义即可全局生效。"
+  },
+  {
+    "type": "para",
+    "text": "在此基础上，app.wxss 还定义了一套原子化的工具类，包括 flex 布局工具类（.flex/.flex-center/.flex-between/.flex-1）、文本工具类（.text-center/.text-muted/.text-primary/.text-danger）、间距工具类（.mt-sm/.mt-md/.p-sm/.p-md 等）、以及 .tag 标签体系。.tag 标签通过五个颜色变体类名（tag-primary/tag-success/tag-warning/tag-danger/tag-info）覆盖了系统中所有标签场景——性别标签、请假类型标签、签到状态标签、审批状态标签全部复用同一套 CSS 类，保证了视觉一致性。按钮系统同样通过 .btn 基类加 .btn-primary/.btn-success/.btn-danger/.btn-outline/.btn-sm/.btn-block 等修饰类组合使用，实现了灵活的按钮样式组合。"
+  },
+  {
+    "type": "para",
+    "text": "后端基于 Django 5.2 框架构建，使用 MySQL 数据库，通过 natapp 内网穿透将本地服务映射到公网。前后端通过 RESTful API 通信，JSON 格式传参，JWT 双 Token 机制做身份认证。下面我将按照功能模块逐一介绍技术实现和样式设计。"
+  },
+  {
+    "type": "title",
+    "text": "二、登录与注册页",
+    "level": 1
+  },
+  {
+    "type": "para",
+    "text": "登录页是整个小程序的入口，也是用户对产品视觉风格的第一印象。页面采用全屏渐变背景——使用 CSS 的 linear-gradient 函数，从顶部的 #1677FF 品牌蓝渐变到底部的 #69b1ff 浅蓝，方向为 135 度斜向过渡，配合 min-height: 100vh 确保覆盖整个屏幕高度。内容是垂直居中的 flex 布局，由 Logo 标题区、模式切换选项卡和表单卡片三部分组成。"
+  },
+  {
+    "type": "title",
+    "text": "2.1 样式实现",
+    "level": 2
+  },
+  {
+    "type": "para",
+    "text": "模式切换选项卡（登录/注册）使用了半透明磨砂玻璃风格。外层容器设置 background: rgba(255,255,255,0.2) 半透明白色背景，border-radius: 40rpx 大圆角，padding: 6rpx 内边距形成胶囊形状。内部的每个 tab 项通过 .mode-tab-active 类名标识选中态——选中时 background 变为纯白色、color 变为品牌蓝、font-weight 加粗、box-shadow 添加轻微阴影实现浮起效果。切换过程使用 transition: all 0.3s 实现平滑过渡动画。角色选择按钮（学生入口/教师入口）采用类似的设计——未选中时灰色背景，选中后变为浅蓝背景加蓝色边框。"
+  },
+  {
+    "type": "para",
+    "text": "表单卡片是一个白色圆角容器，设置 background: #fff、border-radius: 24rpx 大圆角和 box-shadow: 0 8rpx 32rpx rgba(0,0,0,0.1) 深阴影，从渐变背景中浮起形成层次感。输入框在卡片内使用浅灰背景 #f7f8fa 以区分于卡片白色底，聚焦时通过 :focus 伪类切换为白色背景加蓝色边框，给予用户明确的交互反馈。"
+  },
+  {
+    "type": "para",
+    "text": "顶部消息提示条使用 position: fixed 固定定位在导航栏下方，通过 @keyframes slideDown 动画从上方滑入——from 状态的 transform: translateY(-100%) 到 to 状态的 translateY(0)，配合 0.3s ease 缓动函数。错误消息使用浅红底 #fff0f0 配红色文字和红色边框，成功消息使用浅绿底 #e8ffea 配绿色文字。"
+  },
+  {
+    "type": "para",
+    "text": "在密码输入框方面，我们增加了一个显示/隐藏密码的切换控件。它由一个自定义复选框和一个文字标签组成，复选框是一个 36rpx 见方的方块，未选中时灰色边框白色背景，选中后通过 .checked 类名切换为蓝色背景加白色对勾。点击时通过 bindtap 事件翻转 showPassword 布尔值，input 组件的 password 属性绑定 {{!showPassword}} 表达式，当值为 true 时密码即以明文显示。"
+  },
+  {
+    "type": "code",
+    "text": "// WXML — 密码显示切换控件"
+  },
+  {
+    "type": "code",
+    "text": "<view class=\"pwd-toggle\" bindtap=\"toggleLoginPassword\">"
+  },
+  {
+    "type": "code",
+    "text": "  <view class=\"pwd-checkbox {{loginShowPassword ? 'checked' : ''}}\">"
+  },
+  {
+    "type": "code",
+    "text": "    <text wx:if=\"{{loginShowPassword}}\">✓</text>"
+  },
+  {
+    "type": "code",
+    "text": "  </view>"
+  },
+  {
+    "type": "code",
+    "text": "  <text class=\"pwd-toggle-text\">显示密码</text>"
+  },
+  {
+    "type": "code",
+    "text": "</view>"
+  }
+]
